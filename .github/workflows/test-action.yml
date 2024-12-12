@@ -24,8 +24,8 @@ permissions:
   contents: read
 
 jobs:
-  check-dist:
-    name: Check dist/
+  test-job:
+    name: Test
     runs-on: ubuntu-latest
 
     steps:
@@ -43,12 +43,16 @@ jobs:
 
           validation-script: |
             input-b:
-              regex: 'foo\.bar.*' # must be ecma scripts regex
+              must-be: regex
+              value: 'foo\.bar.*' # must be ecma scripts regex
             milliseconds:
-              number:
+              must-be: number
             time-to-live:
-              number:
-                less-than: 1000
-                greater-than: 0
+              must-be: number
+              less-than: 1000
+              greater-than: 0
             enabled:
-              boolean:
+              must-be: boolean
+            unknown:
+              required: false # should not appear in the report if not valid
+              must-be: number
