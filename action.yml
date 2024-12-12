@@ -1,4 +1,7 @@
 name: 'Inputs Validation Action'
+branding:
+  icon: check-circle
+  color: orange
 description:
   'Provides a flexible way to validate the inputs of an action or a workflow'
 author: 'Mustapha Belmokhtar'
