@@ -1,0 +1,16 @@
+name: 'Inputs Validation Action'
+description: 'Provides a flexible way to validate the inputs of an action or a workflow'
+author: 'Mustapha Belmokhtar'
+
+inputs:
+  validation-script:
+    description: "validation yaml script"
+    required: true
+
+# Define your outputs here.
+outputs:
+  validation-result:
+    description: 'The validation result of the inputs'
+runs:
+  using: node20
+  main: dist/index.js

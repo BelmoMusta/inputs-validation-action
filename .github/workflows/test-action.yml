@@ -1,0 +1,54 @@
+name: Test with a workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      input-b:
+        default: foo.bar
+        description: input-b
+        required: false
+      milliseconds:
+        description: milliseconds
+        default: 20
+        required: false
+      time-to-live:
+        required: false
+        description: time-to-live
+        default: 100
+      enabled:
+        description: enabled
+        default: true
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  check-dist:
+    name: Check dist/
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Test Input Validation
+        uses: ./
+        with:
+          input-b: ${{ inputs.input-b }}
+          milliseconds: ${{ inputs.milliseconds }}
+          time-to-live: ${{ inputs.time-to-live }}
+          enabled: ${{ inputs.enabled }}
+
+          validation-script: |
+            input-b:
+              regex: 'foo\.bar.*' # must be ecma scripts regex
+            milliseconds:
+              number:
+            time-to-live:
+              number:
+                less-than: 1000
+                greater-than: 0
+            enabled:
+              boolean:
