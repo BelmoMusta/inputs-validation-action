@@ -25677,6 +25677,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const validate_inputs_1 = __nccwpck_require__(6479);
 const core = __importStar(__nccwpck_require__(7484));
 let validationResult = (0, validate_inputs_1.getValidationResult)();
+core.info(`MESSAGE = ${validationResult.message}`);
 if (!validationResult.isValid) {
     core.setFailed(validationResult.message || "");
 }
