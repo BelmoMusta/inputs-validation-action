@@ -25723,15 +25723,29 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getValidationResult = getValidationResult;
 exports.validateInputs = validateInputs;
 exports.handleInput = handleInput;
 const core = __importStar(__nccwpck_require__(7484));
 const YAML = __importStar(__nccwpck_require__(8815));
+const node_fs_1 = __importDefault(__nccwpck_require__(3024));
 function getValidationScript() {
-    const validation = core.getInput('validation-script');
-    return YAML.parse(validation);
+    const validationInlineScript = core.getInput('validation-script');
+    if (!validationInlineScript) {
+        const validationScriptFileLocation = core.getInput('validation-script-file');
+        if (node_fs_1.default.existsSync(validationScriptFileLocation)) {
+            const fileBuffer = node_fs_1.default.readFileSync(validationScriptFileLocation, 'utf8');
+            return YAML.parse(fileBuffer.toString());
+        }
+        else {
+            core.setFailed(`No validation script found in '${validationScriptFileLocation}'`);
+        }
+    }
+    return YAML.parse(validationInlineScript);
 }
 function renderItem(item) {
     return `- Input : '${item.inputName}' ${item.message}, but found '${item.found}'`;
@@ -25964,6 +25978,14 @@ module.exports = require("net");
 
 "use strict";
 module.exports = require("node:events");
+
+/***/ }),
+
+/***/ 3024:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:fs");
 
 /***/ }),
 

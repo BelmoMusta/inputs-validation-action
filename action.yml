@@ -9,7 +9,11 @@ author: 'Mustapha Belmokhtar'
 inputs:
   validation-script:
     description: 'validation yaml script'
-    required: true
+    required: false
+
+  validation-script-file:
+    description: 'validation yaml script file location'
+    required: false
 
 # Define your outputs here.
 outputs:

@@ -9,7 +9,7 @@ function mockInputsBestCaseScenario() {
     switch (name) {
       case 'validation-script':
         const fileBuffer = fs.readFileSync(
-          '__tests__/validation-script.yml',
+          '__tests__/validation-scrixpt.yml',
           'utf8'
         )
         return fileBuffer.toString()

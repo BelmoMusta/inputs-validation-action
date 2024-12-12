@@ -1,16 +1,31 @@
 import * as core from '@actions/core'
 import * as YAML from 'yaml'
+import fs from 'node:fs'
+import {
+  Boolean,
+  InputNameAndValue,
+  Number,
+  Regex,
+  ValidationReportItem,
+  ValidationResult,
+  ValidationType
+} from './types'
 
 function getValidationScript() {
-  const validation = core.getInput('validation-script')
-  return YAML.parse(validation)
+  const validationInlineScript = core.getInput('validation-script')
+  if (!validationInlineScript) {
+    const validationScriptFileLocation = core.getInput('validation-script-file')
+    if (fs.existsSync(validationScriptFileLocation)) {
+      const fileBuffer = fs.readFileSync(validationScriptFileLocation, 'utf8')
+      return YAML.parse(fileBuffer.toString())
+    } else {
+      core.setFailed(
+        `No validation script found in '${validationScriptFileLocation}'`
+      )
+    }
+  }
+  return YAML.parse(validationInlineScript)
 }
-
-type InputNameAndValue = {
-  name: string
-  value?: any
-}
-export type ValidationResult = { isValid: boolean; message?: string }
 
 function renderItem(item: ValidationReportItem) {
   return `- Input : '${item.inputName}' ${item.message}, but found '${item.found}'`
@@ -45,33 +60,6 @@ export function validateInputs(): ValidationReportItem[] {
     }
   }
   return validationReport
-}
-
-type Regex = {
-  required?: boolean
-  'must-be': 'regex'
-  value: string
-}
-
-type Number = {
-  required?: boolean
-  'must-be': 'number'
-  'less-than'?: number
-  'greater-than'?: number
-}
-
-type Boolean = {
-  required?: boolean
-  'must-be': 'boolean'
-  value?: 'true' | 'false'
-}
-type ValidationType = Regex | Number | Boolean
-
-type ValidationReportItem = {
-  required?: boolean
-  inputName: string
-  message: string
-  found?: string
 }
 
 function handleRegexValidation(
