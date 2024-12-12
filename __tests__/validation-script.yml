@@ -12,4 +12,3 @@ enabled:
 unknown:
   required: false # should not appear in the report if not valid
   must-be: number
-

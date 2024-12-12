@@ -25679,7 +25679,7 @@ const core = __importStar(__nccwpck_require__(7484));
 let validationResult = (0, validate_inputs_1.getValidationResult)();
 core.info(`MESSAGE = ${validationResult.message}`);
 if (!validationResult.isValid) {
-    core.setFailed(validationResult.message || "");
+    core.setFailed(validationResult.message || '');
 }
 
 
@@ -25767,21 +25767,23 @@ function validateInputs() {
 }
 function handleRegexValidation(inputSpecification, inputNameAndValue) {
     const regExp = new RegExp(inputSpecification.value);
-    if (!regExp.test(inputNameAndValue.value || "")) {
+    if (!regExp.test(inputNameAndValue.value || '')) {
         return {
             inputName: inputNameAndValue.name,
             message: `has to match the regex '${inputSpecification.value}'`,
-            found: inputNameAndValue.value,
+            found: inputNameAndValue.value
         };
     }
 }
 function handleBooleanValidation(inputSpecification, inputNameAndValue) {
     let isValid = true;
     let message = 'has to be a boolean';
-    if (inputNameAndValue.value !== "true" && inputNameAndValue.value !== "false") {
+    if (inputNameAndValue.value !== 'true' &&
+        inputNameAndValue.value !== 'false') {
         isValid = false;
     }
-    else if (inputSpecification.value && inputSpecification.value !== inputNameAndValue.value) {
+    else if (inputSpecification.value &&
+        inputSpecification.value !== inputNameAndValue.value) {
         message = `${message} with value '${inputSpecification.value}'`; // fixme
         isValid = false;
     }
@@ -25789,14 +25791,12 @@ function handleBooleanValidation(inputSpecification, inputNameAndValue) {
         return {
             inputName: inputNameAndValue.name,
             message: message,
-            found: inputNameAndValue.value,
+            found: inputNameAndValue.value
         };
     }
 }
 function isNumber(value) {
-    return ((value != null) &&
-        (value !== '') &&
-        !isNaN(Number(value.toString())));
+    return value != null && value !== '' && !isNaN(Number(value.toString()));
 }
 function handleNumberValidation(inputSpecification, inputNameAndValue) {
     let message = `has to be a number`;
@@ -25807,14 +25807,14 @@ function handleNumberValidation(inputSpecification, inputNameAndValue) {
     else if (!isNumber(inputNameAndValue.value)) {
         isValid = false;
     }
-    else if (inputSpecification["greater-than"] !== undefined) {
-        if (inputNameAndValue.value < inputSpecification["greater-than"]) {
-            message = `${message} greater than ${inputSpecification["greater-than"]}`;
+    else if (inputSpecification['greater-than'] !== undefined) {
+        if (inputNameAndValue.value < inputSpecification['greater-than']) {
+            message = `${message} greater than ${inputSpecification['greater-than']}`;
             isValid = false;
         }
-        if (inputSpecification["less-than"] !== undefined) {
-            if (inputNameAndValue.value > inputSpecification["less-than"]) {
-                message = `${message} less than ${inputSpecification["less-than"]}`;
+        if (inputSpecification['less-than'] !== undefined) {
+            if (inputNameAndValue.value > inputSpecification['less-than']) {
+                message = `${message} less than ${inputSpecification['less-than']}`;
                 isValid = false;
             }
         }
@@ -25823,7 +25823,7 @@ function handleNumberValidation(inputSpecification, inputNameAndValue) {
         return {
             inputName: inputNameAndValue.name,
             message: message,
-            found: inputNameAndValue.value,
+            found: inputNameAndValue.value
         };
     }
 }
@@ -25835,9 +25835,9 @@ function handleInput(inputNameAndValue, inputSpecification) {
     if (inputSpecification.required === false && !inputNameAndValue.value) {
         return undefined;
     }
-    const mustBe = inputSpecification["must-be"];
+    const mustBe = inputSpecification['must-be'];
     let report;
-    if (mustBe === "regex" && inputSpecification.value) {
+    if (mustBe === 'regex' && inputSpecification.value) {
         report = handleRegexValidation(inputSpecification, inputNameAndValue);
     }
     else if (mustBe === 'number') {
