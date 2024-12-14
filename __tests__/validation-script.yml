@@ -1,14 +1,17 @@
 input-b:
-  must-be: regex
-  value: 'foo\.bar.*' # must be ecma scripts regex
+  type: string
+  regex: 'foo\.bar.*' # must be ecma scripts regex
 milliseconds:
-  must-be: number
+  type: number
 time-to-live:
-  must-be: number
+  type: number
   less-than: 1000
   greater-than: 0
 enabled:
-  must-be: boolean
+  type: boolean
+working-directory:
+  type: string
+  length: 10
 unknown:
   required: false # should not appear in the report if not valid
-  must-be: number
+  type: number

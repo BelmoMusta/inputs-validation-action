@@ -9,7 +9,7 @@ function mockInputsBestCaseScenario() {
     switch (name) {
       case 'validation-script':
         const fileBuffer = fs.readFileSync(
-          '__tests__/validation-scrixpt.yml',
+          '__tests__/validation-script.yml',
           'utf8'
         )
         return fileBuffer.toString()
@@ -48,6 +48,8 @@ function mockInputsWorstCaseScenario() {
         return '-20'
       case 'enabled':
         return 'oui'
+      case 'working-directory':
+        return '/path/to/sth'
       default:
         return ''
     }
