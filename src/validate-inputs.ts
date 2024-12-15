@@ -1,15 +1,15 @@
 import * as core from '@actions/core'
 import {InputNameAndValue, InputValidationReport, ValidationReportItem, ValidationResult, ValidationType} from './types'
-import {getValidator} from "./validator-factory";
+import {getValidator} from "./validators/validator-factory";
 import {getValidationScript} from "./get-validation-script";
 
 function renderItems(inputName: string, validationReportItems: ValidationReportItem[]) {
     const header = `- Input : '${inputName}'\n`;
     const details: string[] = [];
     for (const validationReportItem of validationReportItems) {
-        details.push(`  * ${validationReportItem.message}, but found '${validationReportItem.found}'`)
+        details.push(`  + ${validationReportItem.message}, but found '${validationReportItem.found}'`)
     }
-    return `${header} ${details.join('\n')}`
+    return `${header}${details.join('\n')}`
 }
 
 export function getValidationResult(): ValidationResult {
@@ -48,10 +48,6 @@ export function handleInput(
     validationType: ValidationType
 ) {
     if (!validationType) {
-        return []
-    }
-    // do not apply validation if input is not provided
-    if (validationType.required === false && !inputNameAndValue.value) {
         return []
     }
     const type = validationType.type

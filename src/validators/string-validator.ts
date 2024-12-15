@@ -1,5 +1,6 @@
-import {InputNameAndValue, StringValidationType, ValidationReportItem} from "./types";
+import {InputNameAndValue, StringValidationType, ValidationReportItem} from "../types";
 import {AbstractValidator} from "./abstract-validator";
+import {AbstractVerifier} from "../verifications/abstract-verifier";
 
 export class StringValidator extends AbstractValidator {
     validate(validationType: StringValidationType,
@@ -14,6 +15,20 @@ export class StringValidator extends AbstractValidator {
                 })
             }
         }
+        if (validationType.length) {
+            const length = (inputNameAndValue.value || '').length;
+            if (length !== validationType.length) {
+                validationReport.push({
+                    message: `has to have length '${validationType.length}'`,
+                    found: length
+                })
+            }
+        }
+
         return validationReport
+    }
+
+    verifications(): AbstractVerifier[] {
+        return [];
     }
 }

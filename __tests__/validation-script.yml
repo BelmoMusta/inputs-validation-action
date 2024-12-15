@@ -1,6 +1,7 @@
 input-b:
   type: string
   regex: 'foo\.bar.*' # must be ecma scripts regex
+  length: 90
 milliseconds:
   type: number
 time-to-live:
@@ -9,9 +10,9 @@ time-to-live:
   greater-than: 0
 enabled:
   type: boolean
+  nullable: true
 working-directory:
   type: string
   length: 10
 unknown:
-  required: false # should not appear in the report if not valid
   type: number

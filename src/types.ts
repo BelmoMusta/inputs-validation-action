@@ -12,27 +12,23 @@ export type StringValidationType = {
     regex?: string
     value: string
 }
-export type RegexValidationType = {
-    type: 'regex'
-    required?: boolean
-    value: string
-}
 export type NumberValidationType = {
     type: 'number'
+    equals: number
     required?: boolean
     'less-than'?: number
     'greater-than'?: number
 }
 export type BooleanValidationType = {
     type: 'boolean'
-    required?: boolean
+    nullable?: boolean
     value?: 'true' | 'false'
 }
-export type ValidationType = StringValidationType | RegexValidationType | NumberValidationType | BooleanValidationType
+export type ValidationType = StringValidationType  | NumberValidationType | BooleanValidationType
 export type ValidationReportItem = {
     required?: boolean
     message: string
-    found?: string
+    found?: any
 }
 export type InputValidationReport = {
     [key: string]: ValidationReportItem [] | []
