@@ -95,4 +95,31 @@ describe('string validation', () => {
             expect(reportElement.length).toEqual(0)
         })
     });
+
+    describe('equals', () => {
+        it('should validate a string that must be equal to another string', async () => {
+            mockInputs('equal-validation-script.yml', {'input-b': 'another value'})
+            const validationResult = validateInputs()
+            const reportElement = validationResult['input-b'];
+            expect(reportElement.length).toEqual(1)
+            expect(reportElement[0].message).toBe(`has to be equal to 'this value'`)
+            expect(reportElement[0].found).toBe("'another value'")
+        })
+
+        it('should validate a string that must be equal to another string when input value is not provided', async () => {
+            mockInputs('equal-validation-script.yml', {'input-b': undefined})
+            const validationResult = validateInputs()
+            const reportElement = validationResult['input-b'];
+            expect(reportElement.length).toEqual(1)
+            expect(reportElement[0].message).toBe(`has to be equal to 'this value'`)
+            expect(reportElement[0].found).toBe("")
+        })
+
+        it('should validate a string against a regex -- best case', async () => {
+            mockInputs('regex-validation-script.yml', {'input-b': 'foo.bar-and.something-else'})
+            const validationResult = validateInputs()
+            const reportElement = validationResult['input-b'];
+            expect(reportElement.length).toEqual(0)
+        })
+    });
 })

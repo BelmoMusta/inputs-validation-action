@@ -10,6 +10,7 @@ export type StringValidationType = {
     'length-greater-than'?: number
     'not-blank'?: boolean
     regex?: string
+    equals: string
 }
 export type NumberValidationType = {
     type: 'number'
@@ -20,7 +21,7 @@ export type NumberValidationType = {
 }
 export type BooleanValidationType = {
     type: 'boolean'
-    value?: 'true' | 'false'
+    equals?: 'true' | 'false'
 }
 export type ValidationType = StringValidationType | NumberValidationType | BooleanValidationType
 export type ValidationReportItem = {

@@ -7,17 +7,16 @@ export class BooleanVerifierImpl extends AbstractVerifier {
         let message = 'has to be a boolean'
         if (value !== 'true' && value !== 'false') {
             isValid = false
-        } else if (validationType.value && validationType.value !== value) {
-            message = `${message} with value '${validationType.value}'` // fixme
+        } else if (validationType.equals && validationType.equals !== value) {
+            message = `${message} with value '${validationType.equals}'`
             isValid = false
         }
         if (!isValid) {
             validationReport.push({
                 message: message,
-                found: value === undefined? '' :`'${value}'`
+                found: this.convertValueToString(value)
             });
         }
         return isValid
     }
-
 }

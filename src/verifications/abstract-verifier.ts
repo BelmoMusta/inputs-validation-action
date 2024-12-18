@@ -6,5 +6,9 @@ export abstract class AbstractVerifier {
     continueOnFailure() {
         return false;
     }
+
+    protected convertValueToString(value: any) {
+        return value === undefined ? '' : `'${value}'`;
+    }
 }
 

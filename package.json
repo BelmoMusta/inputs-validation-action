@@ -42,6 +42,7 @@
     "verbose": true,
     "clearMocks": true,
     "testEnvironment": "node",
+    "coveragePathIgnorePatterns": ["index.ts"],
     "moduleFileExtensions": [
       "js",
       "ts"

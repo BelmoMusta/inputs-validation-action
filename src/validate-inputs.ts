@@ -8,7 +8,7 @@ function renderItems(inputName: string, validationReportItems: ValidationReportI
     const details: string[] = [];
     for (const validationReportItem of validationReportItems) {
         if (validationReportItem.found !== undefined) {
-            details.push(`  + ${validationReportItem.message}, but found '${validationReportItem.found}'`)
+            details.push(`  + ${validationReportItem.message}, but found ${validationReportItem.found}`)
         } else {
             details.push(`  + ${validationReportItem.message}`)
         }
@@ -19,8 +19,8 @@ function renderItems(inputName: string, validationReportItems: ValidationReportI
 export function getValidationResult(): ValidationResult {
     const validationReport = validateInputs()
     const inputs = Object.keys(validationReport);
+    const renderedItems = []
     if (inputs.length > 0) {
-        const renderedItems = []
         for (const inputName of inputs) {
             const validationReportItems = validationReport[inputName];
             if (validationReportItems.length > 0) {
@@ -28,8 +28,10 @@ export function getValidationResult(): ValidationResult {
                 renderedItems.push(renderedItem)
             }
         }
-        const message = renderedItems.join('\n');
-        return {isValid: false, message}
+    }
+
+    if (renderedItems.length > 0) {
+        return {isValid: false, message: renderedItems.join('\n')}
     }
     return {isValid: true}
 }
@@ -51,9 +53,6 @@ export function handleInput(
     inputNameAndValue: InputNameAndValue,
     validationType: ValidationType
 ) {
-    if (!validationType) {
-        return []
-    }
     const type = validationType.type
     const validator = getValidator(type);
     return validator.validate(validationType, inputNameAndValue)
