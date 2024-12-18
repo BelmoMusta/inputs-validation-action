@@ -1,165 +1,70 @@
 import * as core from '@actions/core'
-import * as YAML from 'yaml'
-import fs from 'node:fs'
 import {
-  Boolean,
   InputNameAndValue,
-  Number,
-  Regex,
+  InputValidationReport,
   ValidationReportItem,
   ValidationResult,
   ValidationType
 } from './types'
+import { getValidator } from './validators/validator-factory'
+import { getValidationScript } from './get-validation-script'
 
-function getValidationScript() {
-  const validationInlineScript = core.getInput('validation-script')
-  if (!validationInlineScript) {
-    const validationScriptFileLocation = core.getInput('validation-script-file')
-    if (fs.existsSync(validationScriptFileLocation)) {
-      const fileBuffer = fs.readFileSync(validationScriptFileLocation, 'utf8')
-      return YAML.parse(fileBuffer.toString())
-    } else {
-      core.setFailed(
-        `No validation script found in '${validationScriptFileLocation}'`
+function renderItems(
+  inputName: string,
+  validationReportItems: ValidationReportItem[]
+) {
+  const header = `- Input : '${inputName}'\n`
+  const details: string[] = []
+  for (const validationReportItem of validationReportItems) {
+    if (validationReportItem.found !== undefined) {
+      details.push(
+        `  + ${validationReportItem.message}, but found ${validationReportItem.found}`
       )
+    } else {
+      details.push(`  + ${validationReportItem.message}`)
     }
   }
-  return YAML.parse(validationInlineScript)
-}
-
-function renderItem(item: ValidationReportItem) {
-  return `- Input : '${item.inputName}' ${item.message}, but found '${item.found}'`
+  return `${header}${details.join('\n')}`
 }
 
 export function getValidationResult(): ValidationResult {
-  let validationReportItems = validateInputs()
-  if (validationReportItems.length > 0) {
-    let message = ''
-    const renderedItems = []
-    for (let item of validationReportItems) {
-      const renderedItem = renderItem(item)
-      renderedItems.push(renderedItem)
+  const validationReport = validateInputs()
+  const inputs = Object.keys(validationReport)
+  const renderedItems = []
+  if (inputs.length > 0) {
+    for (const inputName of inputs) {
+      const validationReportItems = validationReport[inputName]
+      if (validationReportItems.length > 0) {
+        const renderedItem = renderItems(inputName, validationReportItems)
+        renderedItems.push(renderedItem)
+      }
     }
-    message = renderedItems.join('\n')
-    return { isValid: false, message }
+  }
+
+  if (renderedItems.length > 0) {
+    return { isValid: false, message: renderedItems.join('\n') }
   }
   return { isValid: true }
 }
 
-export function validateInputs(): ValidationReportItem[] {
-  const validationReport = [] as ValidationReportItem[]
+export function validateInputs(): InputValidationReport {
   const validationScript = getValidationScript()
   const inputsNames = Object.keys(validationScript)
+  const inputValidationReport = {} as InputValidationReport
   for (const inputName of inputsNames) {
     const inputSpecification = validationScript[inputName]
     const providedInput = core.getInput(inputName)
-    const input = { name: inputName, value: providedInput } as InputNameAndValue
-    const report = handleInput(input, inputSpecification)
-    if (report) {
-      validationReport.push(report)
-    }
+    const input = { name: inputName, value: providedInput }
+    inputValidationReport[inputName] = handleInput(input, inputSpecification)
   }
-  return validationReport
-}
-
-function handleRegexValidation(
-  inputSpecification: Regex,
-  inputNameAndValue: InputNameAndValue
-): ValidationReportItem | undefined {
-  const regExp = new RegExp(inputSpecification.value)
-  if (!regExp.test(inputNameAndValue.value || '')) {
-    return {
-      inputName: inputNameAndValue.name,
-      message: `has to match the regex '${inputSpecification.value}'`,
-      found: inputNameAndValue.value
-    }
-  }
-}
-
-function handleBooleanValidation(
-  inputSpecification: Boolean,
-  inputNameAndValue: InputNameAndValue
-): ValidationReportItem | undefined {
-  let isValid = true
-  let message = 'has to be a boolean'
-  if (
-    inputNameAndValue.value !== 'true' &&
-    inputNameAndValue.value !== 'false'
-  ) {
-    isValid = false
-  } else if (
-    inputSpecification.value &&
-    inputSpecification.value !== inputNameAndValue.value
-  ) {
-    message = `${message} with value '${inputSpecification.value}'` // fixme
-    isValid = false
-  }
-  if (!isValid) {
-    return {
-      inputName: inputNameAndValue.name,
-      message: message,
-      found: inputNameAndValue.value
-    }
-  }
-}
-
-function isNumber(value?: string | number): boolean {
-  return value != null && value !== '' && !isNaN(Number(value.toString()))
-}
-
-function handleNumberValidation(
-  inputSpecification: Number,
-  inputNameAndValue: InputNameAndValue
-): ValidationReportItem | undefined {
-  let message = `has to be a number`
-  let isValid = true
-  if (!inputNameAndValue.value) {
-    isValid = false
-  } else if (!isNumber(inputNameAndValue.value)) {
-    isValid = false
-  } else if (inputSpecification['greater-than'] !== undefined) {
-    if (inputNameAndValue.value < inputSpecification['greater-than']) {
-      message = `${message} greater than ${inputSpecification['greater-than']}`
-      isValid = false
-    }
-    if (inputSpecification['less-than'] !== undefined) {
-      if (inputNameAndValue.value > inputSpecification['less-than']) {
-        message = `${message} less than ${inputSpecification['less-than']}`
-        isValid = false
-      }
-    }
-  }
-  if (!isValid) {
-    return {
-      inputName: inputNameAndValue.name,
-      message: message,
-      found: inputNameAndValue.value
-    }
-  }
+  return inputValidationReport
 }
 
 export function handleInput(
   inputNameAndValue: InputNameAndValue,
-  inputSpecification: ValidationType
+  validationType: ValidationType
 ) {
-  if (!inputSpecification) {
-    return undefined
-  }
-  // do not apply validation if input is not provided
-  if (inputSpecification.required === false && !inputNameAndValue.value) {
-    return undefined
-  }
-  const mustBe = inputSpecification['must-be']
-  let report
-  if (mustBe === 'regex' && inputSpecification.value) {
-    report = handleRegexValidation(inputSpecification, inputNameAndValue)
-  } else if (mustBe === 'number') {
-    report = handleNumberValidation(inputSpecification, inputNameAndValue)
-  } else if (mustBe === 'boolean') {
-    report = handleBooleanValidation(inputSpecification, inputNameAndValue)
-  }
-  if (report) {
-    report = { ...report, required: inputSpecification.required }
-  }
-  return report
+  const type = validationType.type
+  const validator = getValidator(type)
+  return validator.validate(validationType, inputNameAndValue)
 }

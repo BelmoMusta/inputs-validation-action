@@ -25635,6 +25635,70 @@ module.exports = {
 
 /***/ }),
 
+/***/ 3647:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getValidationScript = getValidationScript;
+const core = __importStar(__nccwpck_require__(7484));
+const node_fs_1 = __importDefault(__nccwpck_require__(3024));
+const YAML = __importStar(__nccwpck_require__(8815));
+function getValidationScript() {
+    const validationInlineScript = core.getInput('validation-script');
+    if (!validationInlineScript) {
+        const validationScriptFileLocation = core.getInput('validation-script-file');
+        if (node_fs_1.default.existsSync(validationScriptFileLocation)) {
+            const fileBuffer = node_fs_1.default.readFileSync(validationScriptFileLocation, 'utf8');
+            return YAML.parse(fileBuffer.toString());
+        }
+        else {
+            core.setFailed(`No validation script found in '${validationScriptFileLocation}'`);
+        }
+    }
+    return YAML.parse(validationInlineScript);
+}
+
+
+/***/ }),
+
 /***/ 9407:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -25723,148 +25787,503 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getValidationResult = getValidationResult;
 exports.validateInputs = validateInputs;
 exports.handleInput = handleInput;
 const core = __importStar(__nccwpck_require__(7484));
-const YAML = __importStar(__nccwpck_require__(8815));
-const node_fs_1 = __importDefault(__nccwpck_require__(3024));
-function getValidationScript() {
-    const validationInlineScript = core.getInput('validation-script');
-    if (!validationInlineScript) {
-        const validationScriptFileLocation = core.getInput('validation-script-file');
-        if (node_fs_1.default.existsSync(validationScriptFileLocation)) {
-            const fileBuffer = node_fs_1.default.readFileSync(validationScriptFileLocation, 'utf8');
-            return YAML.parse(fileBuffer.toString());
+const validator_factory_1 = __nccwpck_require__(586);
+const get_validation_script_1 = __nccwpck_require__(3647);
+function renderItems(inputName, validationReportItems) {
+    const header = `- Input : '${inputName}'\n`;
+    const details = [];
+    for (const validationReportItem of validationReportItems) {
+        if (validationReportItem.found !== undefined) {
+            details.push(`  + ${validationReportItem.message}, but found ${validationReportItem.found}`);
         }
         else {
-            core.setFailed(`No validation script found in '${validationScriptFileLocation}'`);
+            details.push(`  + ${validationReportItem.message}`);
         }
     }
-    return YAML.parse(validationInlineScript);
-}
-function renderItem(item) {
-    return `- Input : '${item.inputName}' ${item.message}, but found '${item.found}'`;
+    return `${header}${details.join('\n')}`;
 }
 function getValidationResult() {
-    let validationReportItems = validateInputs();
-    if (validationReportItems.length > 0) {
-        let message = '';
-        const renderedItems = [];
-        for (let item of validationReportItems) {
-            const renderedItem = renderItem(item);
-            renderedItems.push(renderedItem);
+    const validationReport = validateInputs();
+    const inputs = Object.keys(validationReport);
+    const renderedItems = [];
+    if (inputs.length > 0) {
+        for (const inputName of inputs) {
+            const validationReportItems = validationReport[inputName];
+            if (validationReportItems.length > 0) {
+                const renderedItem = renderItems(inputName, validationReportItems);
+                renderedItems.push(renderedItem);
+            }
         }
-        message = renderedItems.join('\n');
-        return { isValid: false, message };
+    }
+    if (renderedItems.length > 0) {
+        return { isValid: false, message: renderedItems.join('\n') };
     }
     return { isValid: true };
 }
 function validateInputs() {
-    const validationReport = [];
-    const validationScript = getValidationScript();
+    const validationScript = (0, get_validation_script_1.getValidationScript)();
     const inputsNames = Object.keys(validationScript);
+    const inputValidationReport = {};
     for (const inputName of inputsNames) {
         const inputSpecification = validationScript[inputName];
         const providedInput = core.getInput(inputName);
         const input = { name: inputName, value: providedInput };
-        const report = handleInput(input, inputSpecification);
-        if (report) {
-            validationReport.push(report);
+        inputValidationReport[inputName] = handleInput(input, inputSpecification);
+    }
+    return inputValidationReport;
+}
+function handleInput(inputNameAndValue, validationType) {
+    const type = validationType.type;
+    const validator = (0, validator_factory_1.getValidator)(type);
+    return validator.validate(validationType, inputNameAndValue);
+}
+
+
+/***/ }),
+
+/***/ 626:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AbstractValidator = void 0;
+class AbstractValidator {
+    validate(validationType, inputNameAndValue) {
+        const validationReport = [];
+        const verifications = this.verifications();
+        for (const verification of verifications) {
+            const isOk = verification.verify(validationType, inputNameAndValue.value, validationReport);
+            if (!verification.continueOnFailure() && !isOk) {
+                // verifications are exclusive
+                break;
+            }
         }
-    }
-    return validationReport;
-}
-function handleRegexValidation(inputSpecification, inputNameAndValue) {
-    const regExp = new RegExp(inputSpecification.value);
-    if (!regExp.test(inputNameAndValue.value || '')) {
-        return {
-            inputName: inputNameAndValue.name,
-            message: `has to match the regex '${inputSpecification.value}'`,
-            found: inputNameAndValue.value
-        };
+        return validationReport;
     }
 }
-function handleBooleanValidation(inputSpecification, inputNameAndValue) {
-    let isValid = true;
-    let message = 'has to be a boolean';
-    if (inputNameAndValue.value !== 'true' &&
-        inputNameAndValue.value !== 'false') {
-        isValid = false;
-    }
-    else if (inputSpecification.value &&
-        inputSpecification.value !== inputNameAndValue.value) {
-        message = `${message} with value '${inputSpecification.value}'`; // fixme
-        isValid = false;
-    }
-    if (!isValid) {
-        return {
-            inputName: inputNameAndValue.name,
-            message: message,
-            found: inputNameAndValue.value
-        };
+exports.AbstractValidator = AbstractValidator;
+
+
+/***/ }),
+
+/***/ 896:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BooleanValidator = void 0;
+const abstract_validator_1 = __nccwpck_require__(626);
+const boolean_verifier_impl_1 = __nccwpck_require__(6362);
+class BooleanValidator extends abstract_validator_1.AbstractValidator {
+    verifications() {
+        return [new boolean_verifier_impl_1.BooleanVerifierImpl()];
     }
 }
+exports.BooleanValidator = BooleanValidator;
+
+
+/***/ }),
+
+/***/ 8751:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NeutralValidator = void 0;
+const abstract_validator_1 = __nccwpck_require__(626);
+class NeutralValidator extends abstract_validator_1.AbstractValidator {
+    verifications() {
+        return [];
+    }
+}
+exports.NeutralValidator = NeutralValidator;
+
+
+/***/ }),
+
+/***/ 9397:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NumberValidator = void 0;
+const abstract_validator_1 = __nccwpck_require__(626);
+const number_equals_verifier_impl_1 = __nccwpck_require__(8079);
+const number_less_than_verifier_impl_1 = __nccwpck_require__(6371);
+const number_greater_than_verifier_impl_1 = __nccwpck_require__(1384);
+const number_verifier_impl_1 = __nccwpck_require__(4837);
+class NumberValidator extends abstract_validator_1.AbstractValidator {
+    verifications() {
+        return [
+            new number_verifier_impl_1.NumberVerifierImpl(),
+            new number_equals_verifier_impl_1.NumberEqualsVerifierImpl(),
+            new number_less_than_verifier_impl_1.NumberLessThanVerifierImpl(),
+            new number_greater_than_verifier_impl_1.NumberGreaterThanVerifierImpl()
+        ];
+    }
+}
+exports.NumberValidator = NumberValidator;
+
+
+/***/ }),
+
+/***/ 6769:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StringValidator = void 0;
+const abstract_validator_1 = __nccwpck_require__(626);
+const string_regex_verifier_impl_1 = __nccwpck_require__(6055);
+const string_length_verifier_impl_1 = __nccwpck_require__(4642);
+const string_not_blank_verifier_impl_1 = __nccwpck_require__(6334);
+const string_equals_verifier_impl_1 = __nccwpck_require__(6467);
+class StringValidator extends abstract_validator_1.AbstractValidator {
+    verifications() {
+        return [
+            new string_regex_verifier_impl_1.StringRegexVerifierImpl(),
+            new string_length_verifier_impl_1.StringLengthVerifierImpl(),
+            new string_not_blank_verifier_impl_1.StringNotBlankVerifierImpl(),
+            new string_equals_verifier_impl_1.StringEqualsVerifierImpl()
+        ];
+    }
+}
+exports.StringValidator = StringValidator;
+
+
+/***/ }),
+
+/***/ 586:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getValidator = getValidator;
+const neutral_validator_1 = __nccwpck_require__(8751);
+const number_validator_1 = __nccwpck_require__(9397);
+const boolean_validator_1 = __nccwpck_require__(896);
+const string_validator_1 = __nccwpck_require__(6769);
+function getValidator(type) {
+    let validator = new neutral_validator_1.NeutralValidator();
+    switch (type) {
+        case 'string':
+            validator = new string_validator_1.StringValidator();
+            break;
+        case 'number':
+            validator = new number_validator_1.NumberValidator();
+            break;
+        case 'boolean':
+            validator = new boolean_validator_1.BooleanValidator();
+            break;
+    }
+    return validator;
+}
+
+
+/***/ }),
+
+/***/ 7255:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AbstractVerifier = void 0;
+class AbstractVerifier {
+    continueOnFailure() {
+        return false;
+    }
+    convertValueToString(value) {
+        return value === undefined ? '' : `'${value}'`;
+    }
+}
+exports.AbstractVerifier = AbstractVerifier;
+
+
+/***/ }),
+
+/***/ 6362:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BooleanVerifierImpl = void 0;
+const abstract_verifier_1 = __nccwpck_require__(7255);
+class BooleanVerifierImpl extends abstract_verifier_1.AbstractVerifier {
+    verify(validationType, value, validationReport) {
+        let isValid = true;
+        let message = 'has to be a boolean';
+        if (value !== 'true' && value !== 'false') {
+            isValid = false;
+        }
+        else if (validationType.equals && validationType.equals !== value) {
+            message = `${message} with value '${validationType.equals}'`;
+            isValid = false;
+        }
+        if (!isValid) {
+            validationReport.push({
+                message: message,
+                found: this.convertValueToString(value)
+            });
+        }
+        return isValid;
+    }
+}
+exports.BooleanVerifierImpl = BooleanVerifierImpl;
+
+
+/***/ }),
+
+/***/ 8079:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NumberEqualsVerifierImpl = void 0;
+const abstract_verifier_1 = __nccwpck_require__(7255);
+class NumberEqualsVerifierImpl extends abstract_verifier_1.AbstractVerifier {
+    verify(validationType, value, validationReport) {
+        const equals = validationType.equals;
+        const numberValue = Number(value);
+        if (equals !== undefined && numberValue !== equals) {
+            validationReport.push({
+                message: `has to be a number equal to '${equals}'`,
+                found: value
+            });
+            return false;
+        }
+        return true;
+    }
+}
+exports.NumberEqualsVerifierImpl = NumberEqualsVerifierImpl;
+
+
+/***/ }),
+
+/***/ 1384:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NumberGreaterThanVerifierImpl = void 0;
+const abstract_verifier_1 = __nccwpck_require__(7255);
+class NumberGreaterThanVerifierImpl extends abstract_verifier_1.AbstractVerifier {
+    verify(validationType, value, validationReport) {
+        const lessThan = validationType['greater-than'];
+        if (lessThan !== undefined && value < lessThan) {
+            validationReport.push({
+                message: `has to be a number greater than '${lessThan}'`,
+                found: value
+            });
+            return false;
+        }
+        return true;
+    }
+}
+exports.NumberGreaterThanVerifierImpl = NumberGreaterThanVerifierImpl;
+
+
+/***/ }),
+
+/***/ 6371:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NumberLessThanVerifierImpl = void 0;
+const abstract_verifier_1 = __nccwpck_require__(7255);
+class NumberLessThanVerifierImpl extends abstract_verifier_1.AbstractVerifier {
+    verify(validationType, value, validationReport) {
+        const lessThan = validationType['less-than'];
+        const numberValue = Number(value);
+        if (lessThan !== undefined && numberValue > lessThan) {
+            validationReport.push({
+                message: `has to be a number less than '${lessThan}'`,
+                found: value
+            });
+            return false;
+        }
+        return true;
+    }
+}
+exports.NumberLessThanVerifierImpl = NumberLessThanVerifierImpl;
+
+
+/***/ }),
+
+/***/ 4837:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NumberVerifierImpl = void 0;
+const abstract_verifier_1 = __nccwpck_require__(7255);
 function isNumber(value) {
     return value != null && value !== '' && !isNaN(Number(value.toString()));
 }
-function handleNumberValidation(inputSpecification, inputNameAndValue) {
-    let message = `has to be a number`;
-    let isValid = true;
-    if (!inputNameAndValue.value) {
-        isValid = false;
-    }
-    else if (!isNumber(inputNameAndValue.value)) {
-        isValid = false;
-    }
-    else if (inputSpecification['greater-than'] !== undefined) {
-        if (inputNameAndValue.value < inputSpecification['greater-than']) {
-            message = `${message} greater than ${inputSpecification['greater-than']}`;
-            isValid = false;
+class NumberVerifierImpl extends abstract_verifier_1.AbstractVerifier {
+    verify(validationType, value, validationReport) {
+        if (!isNumber(value)) {
+            validationReport.push({
+                message: `has to be a number`,
+                found: value
+            });
+            return false;
         }
-        if (inputSpecification['less-than'] !== undefined) {
-            if (inputNameAndValue.value > inputSpecification['less-than']) {
-                message = `${message} less than ${inputSpecification['less-than']}`;
-                isValid = false;
+        return true;
+    }
+}
+exports.NumberVerifierImpl = NumberVerifierImpl;
+
+
+/***/ }),
+
+/***/ 7561:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StringAbstractVerifier = void 0;
+const abstract_verifier_1 = __nccwpck_require__(7255);
+class StringAbstractVerifier extends abstract_verifier_1.AbstractVerifier {
+    lengthOfANonBlankString(value) {
+        return value ? value.trim().length : 0;
+    }
+    continueOnFailure() {
+        return true;
+    }
+}
+exports.StringAbstractVerifier = StringAbstractVerifier;
+
+
+/***/ }),
+
+/***/ 6467:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StringEqualsVerifierImpl = void 0;
+const string_abstract_verifier_1 = __nccwpck_require__(7561);
+class StringEqualsVerifierImpl extends string_abstract_verifier_1.StringAbstractVerifier {
+    verify(validationType, value, validationReport) {
+        if (validationType.equals) {
+            if (value !== validationType.equals) {
+                validationReport.push({
+                    message: `has to be equal to '${validationType.equals}'`,
+                    found: this.convertValueToString(value)
+                });
+                return false;
             }
         }
+        return true;
     }
-    if (!isValid) {
-        return {
-            inputName: inputNameAndValue.name,
-            message: message,
-            found: inputNameAndValue.value
-        };
+    continueOnFailure() {
+        return false;
     }
 }
-function handleInput(inputNameAndValue, inputSpecification) {
-    if (!inputSpecification) {
-        return undefined;
+exports.StringEqualsVerifierImpl = StringEqualsVerifierImpl;
+
+
+/***/ }),
+
+/***/ 4642:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StringLengthVerifierImpl = void 0;
+const string_abstract_verifier_1 = __nccwpck_require__(7561);
+class StringLengthVerifierImpl extends string_abstract_verifier_1.StringAbstractVerifier {
+    verify(validationType, value, validationReport) {
+        if (validationType.length) {
+            const length = this.lengthOfANonBlankString(value);
+            if (length !== validationType.length) {
+                validationReport.push({
+                    message: `has to have length '${validationType.length}'`,
+                    found: length
+                });
+                return false;
+            }
+        }
+        return true;
     }
-    // do not apply validation if input is not provided
-    if (inputSpecification.required === false && !inputNameAndValue.value) {
-        return undefined;
-    }
-    const mustBe = inputSpecification['must-be'];
-    let report;
-    if (mustBe === 'regex' && inputSpecification.value) {
-        report = handleRegexValidation(inputSpecification, inputNameAndValue);
-    }
-    else if (mustBe === 'number') {
-        report = handleNumberValidation(inputSpecification, inputNameAndValue);
-    }
-    else if (mustBe === 'boolean') {
-        report = handleBooleanValidation(inputSpecification, inputNameAndValue);
-    }
-    if (report) {
-        report = { ...report, required: inputSpecification.required };
-    }
-    return report;
 }
+exports.StringLengthVerifierImpl = StringLengthVerifierImpl;
+
+
+/***/ }),
+
+/***/ 6334:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StringNotBlankVerifierImpl = void 0;
+const string_abstract_verifier_1 = __nccwpck_require__(7561);
+class StringNotBlankVerifierImpl extends string_abstract_verifier_1.StringAbstractVerifier {
+    verify(validationType, value, validationReport) {
+        if (validationType['not-blank']) {
+            const length = this.lengthOfANonBlankString(value);
+            if (length === 0) {
+                validationReport.push({
+                    message: `has to be a non blank string`
+                });
+                return false;
+            }
+        }
+        return true;
+    }
+}
+exports.StringNotBlankVerifierImpl = StringNotBlankVerifierImpl;
+
+
+/***/ }),
+
+/***/ 6055:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StringRegexVerifierImpl = void 0;
+const string_abstract_verifier_1 = __nccwpck_require__(7561);
+class StringRegexVerifierImpl extends string_abstract_verifier_1.StringAbstractVerifier {
+    verify(validationType, value, validationReport) {
+        if (validationType.regex) {
+            const regExp = new RegExp(validationType.regex);
+            if (!regExp.test(value)) {
+                validationReport.push({
+                    message: `has to match the regex '${validationType.regex}'`,
+                    found: value
+                });
+            }
+            return false;
+        }
+        return true;
+    }
+}
+exports.StringRegexVerifierImpl = StringRegexVerifierImpl;
 
 
 /***/ }),
@@ -33963,7 +34382,7 @@ exports.intOct = intOct;
 
 /***/ }),
 
-/***/ 896:
+/***/ 8515:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -34081,7 +34500,7 @@ var string = __nccwpck_require__(6464);
 var bool = __nccwpck_require__(3959);
 var float = __nccwpck_require__(8405);
 var int = __nccwpck_require__(9874);
-var schema = __nccwpck_require__(896);
+var schema = __nccwpck_require__(8515);
 var schema$1 = __nccwpck_require__(3559);
 var binary = __nccwpck_require__(6083);
 var merge = __nccwpck_require__(452);

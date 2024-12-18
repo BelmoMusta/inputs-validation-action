@@ -12,7 +12,9 @@ inputs:
     required: false
 
   validation-script-file:
-    description: 'validation yaml script file location'
+    description:
+      'validation yaml script file location, used only if the validation-script
+      is not provided'
     required: false
 
 # Define your outputs here.

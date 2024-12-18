@@ -3,26 +3,34 @@ export type InputNameAndValue = {
   value?: any
 }
 export type ValidationResult = { isValid: boolean; message?: string }
-export type Regex = {
-  required?: boolean
-  'must-be': 'regex'
-  value: string
+export type StringValidationType = {
+  type: 'string'
+  length?: number
+  'length-less-than'?: number
+  'length-greater-than'?: number
+  'not-blank'?: boolean
+  regex?: string
+  equals: string
 }
-export type Number = {
+export type NumberValidationType = {
+  type: 'number'
+  equals: number
   required?: boolean
-  'must-be': 'number'
   'less-than'?: number
   'greater-than'?: number
 }
-export type Boolean = {
-  required?: boolean
-  'must-be': 'boolean'
-  value?: 'true' | 'false'
+export type BooleanValidationType = {
+  type: 'boolean'
+  equals?: 'true' | 'false'
 }
-export type ValidationType = Regex | Number | Boolean
+export type ValidationType =
+  | StringValidationType
+  | NumberValidationType
+  | BooleanValidationType
 export type ValidationReportItem = {
-  required?: boolean
-  inputName: string
   message: string
-  found?: string
+  found?: any
+}
+export type InputValidationReport = {
+  [key: string]: ValidationReportItem[] | []
 }

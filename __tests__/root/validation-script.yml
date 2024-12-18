@@ -1,0 +1,5 @@
+input-a:
+  type: number
+input-b:
+  type: string
+  equals: 'this value'
