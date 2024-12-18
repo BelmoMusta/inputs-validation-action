@@ -25,14 +25,12 @@ Among the added validations there is :
   or less than a given value
 - Regex validation : test if a string matches a given regular expression
 - String behaviors : test if a string is not blank
-- ...
-- TODO : many others to come
 
-## Example of use
+## Example of use with an inline yaml script
 
 ```yaml
 - name: Test Input Validation
-  uses: BelmoMusta/inputs-validation-action@main
+  uses: BelmoMusta/inputs-validation-action@v0
   with:
     ### MAP ALL THE INPUTS BY PRESERVING THE SAME NAME ###
     input-b: ${{ inputs.input-b }}
@@ -43,17 +41,32 @@ Among the added validations there is :
     ### THE VALIDATION SCRIPT IS AN INLINE YAML, FIXME: CAN THIS BE A JSON TOO?
     validation-script: |
       input-b:
-        must-be: regex
+        type: string
         value: 'foo\.bar.*' # must be ecma scripts regex
       milliseconds:
-        must-be: number
+        type: number
       time-to-live:
-        must-be: number
+        type: number
         less-than: 1000
         greater-than: 0
       enabled:
-        must-be: boolean
+        type: boolean
       unknown:
         required: false # should not appear in the report if not valid
-        must-be: number
+        type: number
+```
+
+## Example of use with a yaml provided file
+
+```yaml
+- name: Test Input Validation
+  uses: BelmoMusta/inputs-validation-action@v0
+  with:
+    ### MAP ALL THE INPUTS BY PRESERVING THE SAME NAME ###
+    input-b: ${{ inputs.input-b }}
+    milliseconds: ${{ inputs.milliseconds }}
+    time-to-live: ${{ inputs.time-to-live }}
+    enabled: ${{ inputs.enabled }}
+    
+    validation-script-file: validation-script.yml
 ```
