@@ -1,0 +1,3 @@
+working-directory:
+  type: string
+  length: 10
