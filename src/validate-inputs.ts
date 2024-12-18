@@ -7,7 +7,11 @@ function renderItems(inputName: string, validationReportItems: ValidationReportI
     const header = `- Input : '${inputName}'\n`;
     const details: string[] = [];
     for (const validationReportItem of validationReportItems) {
-        details.push(`  + ${validationReportItem.message}, but found '${validationReportItem.found}'`)
+        if (validationReportItem.found !== undefined) {
+            details.push(`  + ${validationReportItem.message}, but found '${validationReportItem.found}'`)
+        } else {
+            details.push(`  + ${validationReportItem.message}`)
+        }
     }
     return `${header}${details.join('\n')}`
 }

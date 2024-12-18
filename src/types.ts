@@ -5,12 +5,11 @@ export type InputNameAndValue = {
 export type ValidationResult = { isValid: boolean; message?: string }
 export type StringValidationType = {
     type: 'string'
-    required?: boolean
     length?: number
     'length-less-than'?: number
     'length-greater-than'?: number
+    'not-blank'?: boolean
     regex?: string
-    value: string
 }
 export type NumberValidationType = {
     type: 'number'
@@ -21,12 +20,10 @@ export type NumberValidationType = {
 }
 export type BooleanValidationType = {
     type: 'boolean'
-    nullable?: boolean
     value?: 'true' | 'false'
 }
-export type ValidationType = StringValidationType  | NumberValidationType | BooleanValidationType
+export type ValidationType = StringValidationType | NumberValidationType | BooleanValidationType
 export type ValidationReportItem = {
-    required?: boolean
     message: string
     found?: any
 }

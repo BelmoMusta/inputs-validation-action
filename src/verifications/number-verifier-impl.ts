@@ -7,7 +7,7 @@ function isNumber(value?: string | number): boolean {
 
 export class NumberVerifierImpl extends AbstractVerifier {
     verify(validationType: NumberValidationType, value: any, validationReport: ValidationReportItem[]): boolean {
-        if (!((value || '').length) || !isNumber(value)) {
+        if (!isNumber(value)) {
             validationReport.push({
                 message: `has to be a number`,
                 found: value

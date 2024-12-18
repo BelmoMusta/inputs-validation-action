@@ -7,7 +7,7 @@ export class NumberEqualsVerifierImpl extends AbstractVerifier {
         const numberValue = Number(value);
         if (equals !== undefined && numberValue !== equals) {
             validationReport.push({
-                message: `has to be a number equal to ${equals}`,
+                message: `has to be a number equal to '${equals}'`,
                 found: value
             })
            return false
