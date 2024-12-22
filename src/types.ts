@@ -5,6 +5,7 @@ export type InputNameAndValue = {
 export type ValidationResult = { isValid: boolean; message?: string }
 export type StringValidationType = {
   type: 'string'
+  required?: boolean
   length?: number
   'length-less-than'?: number
   'length-greater-than'?: number
@@ -21,6 +22,7 @@ export type NumberValidationType = {
 }
 export type BooleanValidationType = {
   type: 'boolean'
+  required?: boolean
   equals?: 'true' | 'false'
 }
 export type ValidationType =
