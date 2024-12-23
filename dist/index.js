@@ -25741,12 +25741,89 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const validate_inputs_1 = __nccwpck_require__(6479);
 const core = __importStar(__nccwpck_require__(7484));
 const core_1 = __nccwpck_require__(7484);
-const validationResult = (0, validate_inputs_1.getValidationResult)();
+const summary_1 = __nccwpck_require__(8855);
+const validationReport = (0, validate_inputs_1.validateInputs)();
+const validationResult = (0, validate_inputs_1.getValidationResult)(validationReport);
 core.info(`MESSAGE = \n${validationResult.message}`);
 (0, core_1.setOutput)('validation-result', validationResult.message);
+(0, summary_1.computeSummary)(validationReport)
+    .then(() => {
+    // o nothing
+})
+    .catch((error) => core.setFailed(error));
 const continueOnFailure = core.getBooleanInput('continue-on-failure');
 if (!continueOnFailure && !validationResult.isValid) {
     core.setFailed(validationResult.message || '');
+}
+
+
+/***/ }),
+
+/***/ 8855:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.computeSummary = computeSummary;
+const get_validation_script_1 = __nccwpck_require__(3647);
+const core = __importStar(__nccwpck_require__(7484));
+async function computeSummary(validationReport) {
+    const validationScript = (0, get_validation_script_1.getValidationScript)();
+    const summaryRows = [];
+    Object.keys(validationScript).forEach(input => {
+        const validationScriptElement = validationScript[input];
+        const type = `${validationScriptElement.type}`;
+        const isValid = validationReport[input].length === 0 ? '✅' : '❌';
+        const row = [input, type, isValid];
+        summaryRows.push(row);
+    });
+    await core.summary
+        .addHeading('Input Validation Result')
+        .addTable([
+        [
+            /* headers */
+            { data: 'input name', header: true },
+            { data: 'type', header: true },
+            { data: 'valid', header: true }
+            /*rows*/
+        ],
+        ...summaryRows
+    ])
+        .write();
 }
 
 
@@ -25801,17 +25878,11 @@ function renderItems(inputName, validationReportItems) {
     const header = `- Input : '${inputName}'\n`;
     const details = [];
     for (const validationReportItem of validationReportItems) {
-        if (validationReportItem.found !== undefined) {
-            details.push(`  + ${validationReportItem.message}, but found ${validationReportItem.found}`);
-        }
-        else {
-            details.push(`  + ${validationReportItem.message}`);
-        }
+        details.push(`  + ${validationReportItem.message}, but found ${validationReportItem.found}`);
     }
     return `${header}${details.join('\n')}`;
 }
-function getValidationResult() {
-    const validationReport = validateInputs();
+function getValidationResult(validationReport) {
     const inputs = Object.keys(validationReport);
     const renderedItems = [];
     if (inputs.length > 0) {

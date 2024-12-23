@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import { getValidationResult } from '../../src/validate-inputs'
+import { getValidationResult, validateInputs } from '../../src/validate-inputs'
 import * as fs from 'node:fs'
 
 let getInputMock: jest.SpiedFunction<typeof core.getInput>
@@ -29,8 +29,8 @@ describe('boolean validation', () => {
     mockInputs('validation-script.yml', {
       'input-b': 'toto'
     })
-
-    const validationResult = getValidationResult()
+    const validationReport = validateInputs()
+    const validationResult = getValidationResult(validationReport)
     expect(validationResult.message).not.toBeUndefined()
   })
 
@@ -39,7 +39,8 @@ describe('boolean validation', () => {
       'input-b': 'this value',
       'input-a': 90
     })
-    const validationResult = getValidationResult()
+    const validationReport = validateInputs()
+    const validationResult = getValidationResult(validationReport)
     expect(validationResult.isValid).toBe(true)
   })
 })

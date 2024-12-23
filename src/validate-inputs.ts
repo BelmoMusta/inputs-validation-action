@@ -16,19 +16,16 @@ function renderItems(
   const header = `- Input : '${inputName}'\n`
   const details: string[] = []
   for (const validationReportItem of validationReportItems) {
-    if (validationReportItem.found !== undefined) {
-      details.push(
-        `  + ${validationReportItem.message}, but found ${validationReportItem.found}`
-      )
-    } else {
-      details.push(`  + ${validationReportItem.message}`)
-    }
+    details.push(
+      `  + ${validationReportItem.message}, but found ${validationReportItem.found}`
+    )
   }
   return `${header}${details.join('\n')}`
 }
 
-export function getValidationResult(): ValidationResult {
-  const validationReport = validateInputs()
+export function getValidationResult(
+  validationReport: InputValidationReport
+): ValidationResult {
   const inputs = Object.keys(validationReport)
   const renderedItems = []
   if (inputs.length > 0) {

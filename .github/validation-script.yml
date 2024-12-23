@@ -9,5 +9,3 @@ time-to-live:
   greater-than: 0
 enabled:
   type: boolean
-unknown:
-  type: number

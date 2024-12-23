@@ -53,5 +53,3 @@ jobs:
               greater-than: 0
             enabled:
               type: boolean
-            unknown:
-              type: number

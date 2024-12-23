@@ -11,7 +11,7 @@ export type StringValidationType = {
   'length-greater-than'?: number
   'not-blank'?: boolean
   regex?: string
-  equals: string
+  equals?: string
 }
 export type NumberValidationType = {
   type: 'number'
