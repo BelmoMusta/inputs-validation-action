@@ -12,6 +12,6 @@ export abstract class AbstractVerifier {
   }
 
   protected convertValueToString(value: string | undefined): string {
-    return value === undefined ? '' : `'${value}'`
+    return value === undefined || value.length === 0 ? '<empty>' : `'${value}'`
   }
 }

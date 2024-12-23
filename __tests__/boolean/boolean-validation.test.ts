@@ -52,7 +52,7 @@ describe('boolean validation', () => {
       const reportElement = validationResult['enabled']
       expect(reportElement.length).toEqual(1)
       expect(reportElement[0].message).toBe('has to be a boolean')
-      expect(reportElement[0].found).toBe('')
+      expect(reportElement[0].found).toBe('<empty>')
     })
   })
 })

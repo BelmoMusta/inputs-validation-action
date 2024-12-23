@@ -124,7 +124,7 @@ describe('string validation', () => {
       const reportElement = validationResult['input-b']
       expect(reportElement.length).toEqual(1)
       expect(reportElement[0].message).toBe(`has to be equal to 'this value'`)
-      expect(reportElement[0].found).toBe('')
+      expect(reportElement[0].found).toBe('<empty>')
     })
 
     it('should validate a string against a regex -- best case', async () => {

@@ -3,8 +3,9 @@ import * as core from '@actions/core'
 import { setOutput } from '@actions/core'
 
 const validationResult = getValidationResult()
-core.info(`MESSAGE = ${validationResult.message}`)
+core.info(`MESSAGE = \n${validationResult.message}`)
 setOutput('validation-result', validationResult.message)
-if (!validationResult.isValid) {
+const continueOnFailure = core.getBooleanInput('continue-on-failure')
+if (!continueOnFailure && !validationResult.isValid) {
   core.setFailed(validationResult.message || '')
 }

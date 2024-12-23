@@ -25742,9 +25742,10 @@ const validate_inputs_1 = __nccwpck_require__(6479);
 const core = __importStar(__nccwpck_require__(7484));
 const core_1 = __nccwpck_require__(7484);
 const validationResult = (0, validate_inputs_1.getValidationResult)();
-core.info(`MESSAGE = ${validationResult.message}`);
+core.info(`MESSAGE = \n${validationResult.message}`);
 (0, core_1.setOutput)('validation-result', validationResult.message);
-if (!validationResult.isValid) {
+const continueOnFailure = core.getBooleanInput('continue-on-failure');
+if (!continueOnFailure && !validationResult.isValid) {
     core.setFailed(validationResult.message || '');
 }
 
@@ -26013,7 +26014,7 @@ class AbstractVerifier {
         return false;
     }
     convertValueToString(value) {
-        return value === undefined ? '' : `'${value}'`;
+        return value === undefined || value.length === 0 ? '<empty>' : `'${value}'`;
     }
 }
 exports.AbstractVerifier = AbstractVerifier;
