@@ -43,7 +43,7 @@ describe('number validation', () => {
       const reportElement = validationResult['time-to-live']
       expect(reportElement.length).toEqual(1)
       expect(reportElement[0].message).toBe('has to be a number')
-      expect(reportElement[0].found).toBeUndefined()
+      expect(reportElement[0].found).toBe('<empty>')
     })
 
     it('should validate a number that is equal to a value', async () => {
@@ -73,7 +73,7 @@ describe('number validation', () => {
       const reportElement = validationResult['time-to-live']
       expect(reportElement.length).toEqual(1)
       expect(reportElement[0].message).toBe('has to be a number')
-      expect(reportElement[0].found).toBeUndefined()
+      expect(reportElement[0].found).toBe('<empty>')
     })
 
     it('should validate a number that is less than a value', async () => {
@@ -103,7 +103,7 @@ describe('number validation', () => {
       const reportElement = validationResult['time-to-live']
       expect(reportElement.length).toEqual(1)
       expect(reportElement[0].message).toBe('has to be a number')
-      expect(reportElement[0].found).toBeUndefined()
+      expect(reportElement[0].found).toBe('<empty>')
     })
 
     it('should validate a number that is greater than a value', async () => {

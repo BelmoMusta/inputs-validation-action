@@ -26150,7 +26150,7 @@ class NumberVerifierImpl extends abstract_verifier_1.AbstractVerifier {
         if (!isNumber(value)) {
             validationReport.push({
                 message: `has to be a number`,
-                found: value
+                found: this.convertValueToString(value)
             });
             return false;
         }
