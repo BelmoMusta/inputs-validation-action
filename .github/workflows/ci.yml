@@ -57,6 +57,7 @@ jobs:
         id: test-action
         uses: ./
         with:
+          continue-on-failure: 'true'
           validation-script: |
             input-b:
               type: string
