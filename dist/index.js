@@ -25740,10 +25740,90 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const validate_inputs_1 = __nccwpck_require__(6479);
 const core = __importStar(__nccwpck_require__(7484));
-let validationResult = (0, validate_inputs_1.getValidationResult)();
-core.info(`MESSAGE = ${validationResult.message}`);
-if (!validationResult.isValid) {
+const core_1 = __nccwpck_require__(7484);
+const summary_1 = __nccwpck_require__(8855);
+const validationReport = (0, validate_inputs_1.validateInputs)();
+const validationResult = (0, validate_inputs_1.getValidationResult)(validationReport);
+core.info(`MESSAGE = \n${validationResult.message}`);
+(0, core_1.setOutput)('validation-result', validationResult.message);
+(0, summary_1.computeSummary)(validationReport)
+    .then(() => {
+    // do nothing
+})
+    .catch((error) => core.setFailed(error));
+const continueOnFailure = core.getBooleanInput('continue-on-failure');
+if (!continueOnFailure && !validationResult.isValid) {
     core.setFailed(validationResult.message || '');
+}
+
+
+/***/ }),
+
+/***/ 8855:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.computeSummary = computeSummary;
+const get_validation_script_1 = __nccwpck_require__(3647);
+const core = __importStar(__nccwpck_require__(7484));
+async function computeSummary(validationReport) {
+    const validationScript = (0, get_validation_script_1.getValidationScript)();
+    const summaryRows = [];
+    Object.keys(validationScript).forEach(input => {
+        const validationScriptElement = validationScript[input];
+        const type = `${validationScriptElement.type}`;
+        const isValid = validationReport[input].length === 0 ? '✅' : '❌';
+        const row = [input, type, isValid];
+        summaryRows.push(row);
+    });
+    await core.summary
+        .addHeading('Input Validation Result')
+        .addTable([
+        [
+            /* headers */
+            { data: 'input name', header: true },
+            { data: 'type', header: true },
+            { data: 'valid', header: true }
+            /*rows*/
+        ],
+        ...summaryRows
+    ])
+        .write();
 }
 
 
@@ -25798,17 +25878,11 @@ function renderItems(inputName, validationReportItems) {
     const header = `- Input : '${inputName}'\n`;
     const details = [];
     for (const validationReportItem of validationReportItems) {
-        if (validationReportItem.found !== undefined) {
-            details.push(`  + ${validationReportItem.message}, but found ${validationReportItem.found}`);
-        }
-        else {
-            details.push(`  + ${validationReportItem.message}`);
-        }
+        details.push(`  + ${validationReportItem.message}, but found ${validationReportItem.found}`);
     }
     return `${header}${details.join('\n')}`;
 }
-function getValidationResult() {
-    const validationReport = validateInputs();
+function getValidationResult(validationReport) {
     const inputs = Object.keys(validationReport);
     const renderedItems = [];
     if (inputs.length > 0) {
@@ -25847,17 +25921,23 @@ function handleInput(inputNameAndValue, validationType) {
 /***/ }),
 
 /***/ 626:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AbstractValidator = void 0;
+const required_verifier_impl_1 = __nccwpck_require__(7265);
 class AbstractValidator {
     validate(validationType, inputNameAndValue) {
         const validationReport = [];
         const verifications = this.verifications();
-        for (const verification of verifications) {
+        const requiredVerifier = new required_verifier_impl_1.RequiredVerifierImpl();
+        const allVerifiers = [
+            requiredVerifier,
+            ...verifications
+        ];
+        for (const verification of allVerifiers) {
             const isOk = verification.verify(validationType, inputNameAndValue.value, validationReport);
             if (!verification.continueOnFailure() && !isOk) {
                 // verifications are exclusive
@@ -26005,7 +26085,7 @@ class AbstractVerifier {
         return false;
     }
     convertValueToString(value) {
-        return value === undefined ? '' : `'${value}'`;
+        return value === undefined || value.length === 0 ? '<empty>' : `'${value}'`;
     }
 }
 exports.AbstractVerifier = AbstractVerifier;
@@ -26084,7 +26164,7 @@ const abstract_verifier_1 = __nccwpck_require__(7255);
 class NumberGreaterThanVerifierImpl extends abstract_verifier_1.AbstractVerifier {
     verify(validationType, value, validationReport) {
         const lessThan = validationType['greater-than'];
-        if (lessThan !== undefined && value < lessThan) {
+        if (lessThan !== undefined && Number(value) < lessThan) {
             validationReport.push({
                 message: `has to be a number greater than '${lessThan}'`,
                 found: value
@@ -26110,8 +26190,7 @@ const abstract_verifier_1 = __nccwpck_require__(7255);
 class NumberLessThanVerifierImpl extends abstract_verifier_1.AbstractVerifier {
     verify(validationType, value, validationReport) {
         const lessThan = validationType['less-than'];
-        const numberValue = Number(value);
-        if (lessThan !== undefined && numberValue > lessThan) {
+        if (lessThan !== undefined && Number(value) > lessThan) {
             validationReport.push({
                 message: `has to be a number less than '${lessThan}'`,
                 found: value
@@ -26142,7 +26221,7 @@ class NumberVerifierImpl extends abstract_verifier_1.AbstractVerifier {
         if (!isNumber(value)) {
             validationReport.push({
                 message: `has to be a number`,
-                found: value
+                found: this.convertValueToString(value)
             });
             return false;
         }
@@ -26150,6 +26229,37 @@ class NumberVerifierImpl extends abstract_verifier_1.AbstractVerifier {
     }
 }
 exports.NumberVerifierImpl = NumberVerifierImpl;
+
+
+/***/ }),
+
+/***/ 7265:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RequiredVerifierImpl = void 0;
+const abstract_verifier_1 = __nccwpck_require__(7255);
+class RequiredVerifierImpl extends abstract_verifier_1.AbstractVerifier {
+    verify(validationType, value, validationReport) {
+        if (validationType.required && value === undefined) {
+            validationReport.push({
+                message: `required but not provided`,
+                found: undefined
+            });
+            return false;
+        }
+        return true;
+    }
+    continueOnFailure() {
+        // if a required input is not
+        // provided then verifications
+        // should not go further
+        return false;
+    }
+}
+exports.RequiredVerifierImpl = RequiredVerifierImpl;
 
 
 /***/ }),
@@ -26220,7 +26330,7 @@ class StringLengthVerifierImpl extends string_abstract_verifier_1.StringAbstract
             if (length !== validationType.length) {
                 validationReport.push({
                     message: `has to have length '${validationType.length}'`,
-                    found: length
+                    found: `${length}`
                 });
                 return false;
             }
@@ -26272,7 +26382,7 @@ class StringRegexVerifierImpl extends string_abstract_verifier_1.StringAbstractV
     verify(validationType, value, validationReport) {
         if (validationType.regex) {
             const regExp = new RegExp(validationType.regex);
-            if (!regExp.test(value)) {
+            if (!value || !regExp.test(value)) {
                 validationReport.push({
                     message: `has to match the regex '${validationType.regex}'`,
                     found: value

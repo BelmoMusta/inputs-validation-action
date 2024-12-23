@@ -1,8 +1,18 @@
-import { getValidationResult } from './validate-inputs'
+import { getValidationResult, validateInputs } from './validate-inputs'
 import * as core from '@actions/core'
+import { setOutput } from '@actions/core'
+import { computeSummary } from './summary'
 
-let validationResult = getValidationResult()
-core.info(`MESSAGE = ${validationResult.message}`)
-if (!validationResult.isValid) {
+const validationReport = validateInputs()
+const validationResult = getValidationResult(validationReport)
+core.info(`MESSAGE = \n${validationResult.message}`)
+setOutput('validation-result', validationResult.message)
+computeSummary(validationReport)
+  .then(() => {
+    // do nothing
+  })
+  .catch((error: string | Error) => core.setFailed(error))
+const continueOnFailure = core.getBooleanInput('continue-on-failure')
+if (!continueOnFailure && !validationResult.isValid) {
   core.setFailed(validationResult.message || '')
 }

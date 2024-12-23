@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import { getValidationResult } from '../../src/validate-inputs'
+import { getValidationResult, validateInputs } from '../../src/validate-inputs'
 import * as fs from 'node:fs'
 
 let getInputMock: jest.SpiedFunction<typeof core.getInput>
@@ -30,7 +30,8 @@ describe('neutral validation', () => {
       'input-b': 'toto'
     })
 
-    const validationResult = getValidationResult()
+    const validationReport = validateInputs()
+    const validationResult = getValidationResult(validationReport)
     expect(validationResult.message).toBeUndefined()
   })
 })

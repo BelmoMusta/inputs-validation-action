@@ -4,7 +4,7 @@ import { StringAbstractVerifier } from './string-abstract-verifier'
 export class StringEqualsVerifierImpl extends StringAbstractVerifier {
   verify(
     validationType: StringValidationType,
-    value: any,
+    value: string | undefined,
     validationReport: ValidationReportItem[]
   ): boolean {
     if (validationType.equals) {

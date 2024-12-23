@@ -4,7 +4,7 @@ import { StringAbstractVerifier } from './string-abstract-verifier'
 export class StringLengthVerifierImpl extends StringAbstractVerifier {
   verify(
     validationType: StringValidationType,
-    value: any,
+    value: string | undefined,
     validationReport: ValidationReportItem[]
   ): boolean {
     if (validationType.length) {
@@ -12,7 +12,7 @@ export class StringLengthVerifierImpl extends StringAbstractVerifier {
       if (length !== validationType.length) {
         validationReport.push({
           message: `has to have length '${validationType.length}'`,
-          found: length
+          found: `${length}`
         })
         return false
       }

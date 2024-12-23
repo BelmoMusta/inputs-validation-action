@@ -1,0 +1,3 @@
+enabled:
+  required: true
+  type: boolean

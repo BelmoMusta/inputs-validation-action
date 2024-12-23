@@ -46,7 +46,7 @@ describe('get-validation-script tests', () => {
       {},
       'neutral-validation-script.yml'
     )
-    let validationScript = getValidationScript()
+    const validationScript = getValidationScript()
     expect(validationScript).not.toBeUndefined()
   })
 

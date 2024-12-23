@@ -1,16 +1,17 @@
 export type InputNameAndValue = {
   name: string
-  value?: any
+  value?: string
 }
 export type ValidationResult = { isValid: boolean; message?: string }
 export type StringValidationType = {
   type: 'string'
+  required?: boolean
   length?: number
   'length-less-than'?: number
   'length-greater-than'?: number
   'not-blank'?: boolean
   regex?: string
-  equals: string
+  equals?: string
 }
 export type NumberValidationType = {
   type: 'number'
@@ -21,16 +22,22 @@ export type NumberValidationType = {
 }
 export type BooleanValidationType = {
   type: 'boolean'
+  required?: boolean
   equals?: 'true' | 'false'
 }
 export type ValidationType =
   | StringValidationType
   | NumberValidationType
   | BooleanValidationType
+
 export type ValidationReportItem = {
   message: string
-  found?: any
+  found?: string
 }
 export type InputValidationReport = {
   [key: string]: ValidationReportItem[] | []
+}
+
+export type ValidationScript = {
+  [key: string]: ValidationType
 }
