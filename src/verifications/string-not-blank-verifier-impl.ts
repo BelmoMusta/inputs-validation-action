@@ -4,7 +4,7 @@ import { StringAbstractVerifier } from './string-abstract-verifier'
 export class StringNotBlankVerifierImpl extends StringAbstractVerifier {
   verify(
     validationType: StringValidationType,
-    value: string,
+    value: string | undefined,
     validationReport: ValidationReportItem[]
   ): boolean {
     if (validationType['not-blank']) {

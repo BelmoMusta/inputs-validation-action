@@ -4,7 +4,7 @@ import { AbstractVerifier } from './abstract-verifier'
 export class BooleanVerifierImpl extends AbstractVerifier {
   verify(
     validationType: BooleanValidationType,
-    value: any,
+    value: string,
     validationReport: ValidationReportItem[]
   ): boolean {
     let isValid = true

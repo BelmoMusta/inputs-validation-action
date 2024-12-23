@@ -63,7 +63,7 @@ describe('string validation', () => {
       const reportElement = validationResult['working-directory']
       expect(reportElement.length).toEqual(1)
       expect(reportElement[0].message).toBe(`has to have length '10'`)
-      expect(reportElement[0].found).toBe('/path'.length)
+      expect(reportElement[0].found).toBe(`${'/path'.length}`)
     })
     it('should validate length for a string -- best case', async () => {
       mockInputs('length-validation-script.yml', {

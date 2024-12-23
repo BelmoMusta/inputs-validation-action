@@ -1,6 +1,6 @@
 export type InputNameAndValue = {
   name: string
-  value?: any
+  value?: string
 }
 export type ValidationResult = { isValid: boolean; message?: string }
 export type StringValidationType = {
@@ -29,10 +29,15 @@ export type ValidationType =
   | StringValidationType
   | NumberValidationType
   | BooleanValidationType
+
 export type ValidationReportItem = {
   message: string
-  found?: any
+  found?: string
 }
 export type InputValidationReport = {
   [key: string]: ValidationReportItem[] | []
+}
+
+export type ValidationScript = {
+  [key: string]: ValidationType
 }

@@ -25740,8 +25740,10 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const validate_inputs_1 = __nccwpck_require__(6479);
 const core = __importStar(__nccwpck_require__(7484));
-let validationResult = (0, validate_inputs_1.getValidationResult)();
+const core_1 = __nccwpck_require__(7484);
+const validationResult = (0, validate_inputs_1.getValidationResult)();
 core.info(`MESSAGE = ${validationResult.message}`);
+(0, core_1.setOutput)('validation-result', validationResult.message);
 if (!validationResult.isValid) {
     core.setFailed(validationResult.message || '');
 }
@@ -25847,17 +25849,23 @@ function handleInput(inputNameAndValue, validationType) {
 /***/ }),
 
 /***/ 626:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AbstractValidator = void 0;
+const required_verifier_impl_1 = __nccwpck_require__(7265);
 class AbstractValidator {
     validate(validationType, inputNameAndValue) {
         const validationReport = [];
         const verifications = this.verifications();
-        for (const verification of verifications) {
+        const requiredVerifier = new required_verifier_impl_1.RequiredVerifierImpl();
+        const allVerifiers = [
+            requiredVerifier,
+            ...verifications
+        ];
+        for (const verification of allVerifiers) {
             const isOk = verification.verify(validationType, inputNameAndValue.value, validationReport);
             if (!verification.continueOnFailure() && !isOk) {
                 // verifications are exclusive
@@ -26084,7 +26092,7 @@ const abstract_verifier_1 = __nccwpck_require__(7255);
 class NumberGreaterThanVerifierImpl extends abstract_verifier_1.AbstractVerifier {
     verify(validationType, value, validationReport) {
         const lessThan = validationType['greater-than'];
-        if (lessThan !== undefined && value < lessThan) {
+        if (lessThan !== undefined && Number(value) < lessThan) {
             validationReport.push({
                 message: `has to be a number greater than '${lessThan}'`,
                 found: value
@@ -26110,8 +26118,7 @@ const abstract_verifier_1 = __nccwpck_require__(7255);
 class NumberLessThanVerifierImpl extends abstract_verifier_1.AbstractVerifier {
     verify(validationType, value, validationReport) {
         const lessThan = validationType['less-than'];
-        const numberValue = Number(value);
-        if (lessThan !== undefined && numberValue > lessThan) {
+        if (lessThan !== undefined && Number(value) > lessThan) {
             validationReport.push({
                 message: `has to be a number less than '${lessThan}'`,
                 found: value
@@ -26150,6 +26157,37 @@ class NumberVerifierImpl extends abstract_verifier_1.AbstractVerifier {
     }
 }
 exports.NumberVerifierImpl = NumberVerifierImpl;
+
+
+/***/ }),
+
+/***/ 7265:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RequiredVerifierImpl = void 0;
+const abstract_verifier_1 = __nccwpck_require__(7255);
+class RequiredVerifierImpl extends abstract_verifier_1.AbstractVerifier {
+    verify(validationType, value, validationReport) {
+        if (validationType.required && value === undefined) {
+            validationReport.push({
+                message: `required but not provided`,
+                found: undefined
+            });
+            return false;
+        }
+        return true;
+    }
+    continueOnFailure() {
+        // if a required input is not
+        // provided then verifications
+        // should not go further
+        return false;
+    }
+}
+exports.RequiredVerifierImpl = RequiredVerifierImpl;
 
 
 /***/ }),
@@ -26220,7 +26258,7 @@ class StringLengthVerifierImpl extends string_abstract_verifier_1.StringAbstract
             if (length !== validationType.length) {
                 validationReport.push({
                     message: `has to have length '${validationType.length}'`,
-                    found: length
+                    found: `${length}`
                 });
                 return false;
             }
@@ -26272,7 +26310,7 @@ class StringRegexVerifierImpl extends string_abstract_verifier_1.StringAbstractV
     verify(validationType, value, validationReport) {
         if (validationType.regex) {
             const regExp = new RegExp(validationType.regex);
-            if (!regExp.test(value)) {
+            if (!value || !regExp.test(value)) {
                 validationReport.push({
                     message: `has to match the regex '${validationType.regex}'`,
                     found: value

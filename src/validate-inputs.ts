@@ -12,7 +12,7 @@ import { getValidationScript } from './get-validation-script'
 function renderItems(
   inputName: string,
   validationReportItems: ValidationReportItem[]
-) {
+): string {
   const header = `- Input : '${inputName}'\n`
   const details: string[] = []
   for (const validationReportItem of validationReportItems) {
@@ -63,7 +63,7 @@ export function validateInputs(): InputValidationReport {
 export function handleInput(
   inputNameAndValue: InputNameAndValue,
   validationType: ValidationType
-) {
+): ValidationReportItem[] {
   const type = validationType.type
   const validator = getValidator(type)
   return validator.validate(validationType, inputNameAndValue)

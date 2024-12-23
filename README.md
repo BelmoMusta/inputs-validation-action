@@ -67,6 +67,6 @@ Among the added validations there is :
     milliseconds: ${{ inputs.milliseconds }}
     time-to-live: ${{ inputs.time-to-live }}
     enabled: ${{ inputs.enabled }}
-    
+
     validation-script-file: validation-script.yml
 ```

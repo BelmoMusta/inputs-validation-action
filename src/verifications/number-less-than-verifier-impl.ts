@@ -4,12 +4,11 @@ import { AbstractVerifier } from './abstract-verifier'
 export class NumberLessThanVerifierImpl extends AbstractVerifier {
   verify(
     validationType: NumberValidationType,
-    value: any,
+    value: string | undefined,
     validationReport: ValidationReportItem[]
   ): boolean {
     const lessThan = validationType['less-than']
-    const numberValue = Number(value)
-    if (lessThan !== undefined && numberValue > lessThan) {
+    if (lessThan !== undefined && Number(value) > lessThan) {
       validationReport.push({
         message: `has to be a number less than '${lessThan}'`,
         found: value
