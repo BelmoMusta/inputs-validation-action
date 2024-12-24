@@ -4,20 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       input-b:
-        default: foo.bar
         description: input-b
         required: false
       milliseconds:
         description: milliseconds
-        default: 20
         required: false
       time-to-live:
         required: false
         description: time-to-live
-        default: 100
       enabled:
         description: enabled
-        default: true
         required: false
 
 permissions:
@@ -53,5 +49,3 @@ jobs:
               greater-than: 0
             enabled:
               type: boolean
-            unknown:
-              type: number

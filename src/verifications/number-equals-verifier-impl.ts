@@ -4,7 +4,7 @@ import { AbstractVerifier } from './abstract-verifier'
 export class NumberEqualsVerifierImpl extends AbstractVerifier {
   verify(
     validationType: NumberValidationType,
-    value: any,
+    value: string,
     validationReport: ValidationReportItem[]
   ): boolean {
     const equals = validationType.equals

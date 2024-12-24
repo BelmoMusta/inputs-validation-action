@@ -4,6 +4,7 @@ import {
   ValidationType
 } from '../types'
 import { AbstractVerifier } from '../verifications/abstract-verifier'
+import { RequiredVerifierImpl } from '../verifications/required-verifier-impl'
 
 export abstract class AbstractValidator {
   validate(
@@ -12,7 +13,12 @@ export abstract class AbstractValidator {
   ): ValidationReportItem[] {
     const validationReport: ValidationReportItem[] = []
     const verifications = this.verifications()
-    for (const verification of verifications) {
+    const requiredVerifier = new RequiredVerifierImpl()
+    const allVerifiers: AbstractVerifier[] = [
+      requiredVerifier,
+      ...verifications
+    ]
+    for (const verification of allVerifiers) {
       const isOk = verification.verify(
         validationType,
         inputNameAndValue.value,
