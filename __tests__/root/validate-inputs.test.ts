@@ -4,17 +4,18 @@ import * as fs from 'node:fs'
 
 let getInputMock: jest.SpiedFunction<typeof core.getInput>
 
-function mockInputs(scriptFileLocation: string, mockedInputs: any) {
-  getInputMock.mockImplementation(name => {
+function mockInputs(scriptFileLocation: string, mockedInputs: object) {
+  getInputMock.mockImplementation((name: string) => {
     switch (name) {
-      case 'validation-script':
+      case 'validation-script': {
         const fileBuffer = fs.readFileSync(
           '__tests__/root/' + scriptFileLocation,
           'utf8'
         )
         return fileBuffer.toString()
+      }
       default:
-        return mockedInputs[name]
+        return mockedInputs[name as keyof object]
     }
   })
 }

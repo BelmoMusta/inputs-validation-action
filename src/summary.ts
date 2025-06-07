@@ -9,7 +9,7 @@ export async function computeSummary(
   const validationScript = getValidationScript()
   const summaryRows: SummaryTableRow[] = []
 
-  Object.keys(validationScript).forEach(input => {
+  Object.keys(validationScript).forEach((input) => {
     const validationScriptElement = validationScript[input]
     const type = `${validationScriptElement.type}`
     const isValid = validationReport[input].length === 0 ? '✅' : '❌'

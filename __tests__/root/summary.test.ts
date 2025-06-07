@@ -13,8 +13,10 @@ describe('Summary', () => {
   beforeEach(() => {
     spyAddHeading = jest.spyOn(core.summary, 'addHeading')
     spyAddTable = jest.spyOn(core.summary, 'addTable')
-    spyWrite = jest.spyOn(core.summary, 'write').mockImplementation(args => {
-      return Promise.resolve({} as any)
+
+    spyWrite = jest.spyOn(core.summary, 'write').mockImplementation(() => {
+      return Promise.resolve({} as any) //eslint-disable-line @typescript-eslint/no-explicit-any
+      // because the Summary type is not exported from @core library
     })
 
     jest.spyOn(validationScript, 'getValidationScript').mockReturnValue({

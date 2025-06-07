@@ -7,22 +7,23 @@ let coreSetFailed: jest.SpiedFunction<typeof core.setFailed>
 
 function mockInputs(
   scriptFileLocation: string,
-  mockedInputs: any,
+  mockedInputs: object,
   fallBackScriptFile: string
 ) {
-  getInputMock.mockImplementation(name => {
+  getInputMock.mockImplementation((name: string) => {
     switch (name) {
       case 'validation-script-file':
         return '__tests__/root/' + fallBackScriptFile
-      case 'validation-script':
-        let path = '__tests__/root/' + scriptFileLocation
+      case 'validation-script': {
+        const path = '__tests__/root/' + scriptFileLocation
         if (fs.existsSync(path)) {
           const fileBuffer = fs.readFileSync(path, 'utf8')
           return fileBuffer.toString()
         }
         return ''
+      }
       default:
-        return mockedInputs[name]
+        return mockedInputs[name as keyof object]
     }
   })
 }
@@ -36,7 +37,7 @@ describe('get-validation-script tests', () => {
 
   it('should get the validation script', () => {
     mockInputs('neutral-validation-script.yml', {}, '')
-    let validationScript = getValidationScript()
+    const validationScript = getValidationScript()
     expect(validationScript).not.toBeUndefined()
   })
 
@@ -47,10 +48,10 @@ describe('get-validation-script tests', () => {
       'neutral-validation-script.yml'
     )
     const validationScript = getValidationScript()
-    expect(validationScript).not.toBeUndefined()
+    expect(validationScript).toBeDefined()
   })
 
-  it('should fallback to the value of validation-script-file input to get the validation script', () => {
+  it('should fail if the validation-script-file is not found', () => {
     mockInputs(
       'xxxx-neutral-validation-script.yml',
       {},

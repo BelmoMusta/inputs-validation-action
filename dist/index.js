@@ -25804,7 +25804,7 @@ const core = __importStar(__nccwpck_require__(7484));
 async function computeSummary(validationReport) {
     const validationScript = (0, get_validation_script_1.getValidationScript)();
     const summaryRows = [];
-    Object.keys(validationScript).forEach(input => {
+    Object.keys(validationScript).forEach((input) => {
         const validationScriptElement = validationScript[input];
         const type = `${validationScriptElement.type}`;
         const isValid = validationReport[input].length === 0 ? '✅' : '❌';
