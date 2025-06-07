@@ -58,6 +58,7 @@ jobs:
         uses: ./
         with:
           continue-on-failure: 'true'
+          #language=yaml
           validation-script: |
             input-b:
               type: string
