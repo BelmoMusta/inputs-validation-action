@@ -151,8 +151,8 @@ key:
 </td>
 <td>
 
-Fails if the provided input is empty or of consecutive blank spaces (`\n`,`[SPACE]`,
-`\t`)
+Fails if the provided input is empty or of consecutive blank spaces
+(`\n`,`[SPACE]`, `\t`)
 
 </td>
 </tr>
