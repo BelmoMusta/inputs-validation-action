@@ -119,7 +119,7 @@ input-b:
 </td>
 <td>
 
-Fails if the provided input does not match the regex `^foo\.bar.*$`
+Fails if the provided input does not match the regular expression `^foo\.bar.*$`
 
 </td>
 </tr>
@@ -151,7 +151,7 @@ key:
 </td>
 <td>
 
-Fails if the provided input is empty or of consecutive blank spaces (`\n`,` `,
+Fails if the provided input is empty or of consecutive blank spaces (`\n`,`[SPACE]`,
 `\t`)
 
 </td>
@@ -176,7 +176,7 @@ Fails if the provided input is not `true` nor `false`
 </tr>
 </table>
 
-## Example of use with an inline yaml script
+## Example of use with an inline YAML script
 
 ```yaml
 - name: Test Input Validation
@@ -206,7 +206,7 @@ Fails if the provided input is not `true` nor `false`
         type: number
 ```
 
-## Example of use with a yaml provided file
+## Example of use with a YAML provided file
 
 ```yaml
 - name: Test Input Validation
@@ -228,7 +228,7 @@ rendered message
 
 ## Validation summary
 
-The validation process produces a summary in the Github Actions interface.
+The validation process produces a summary in the GitHub Actions interface.
 
 Example :
 
