@@ -31,7 +31,7 @@ describe('Summary', () => {
     const validationReport = {
       'input-a': [
         {
-          message: 'should be provided',
+          expected: 'should be provided',
           found: '<empty>'
         }
       ]
@@ -42,9 +42,11 @@ describe('Summary', () => {
       [
         { data: 'input name', header: true },
         { data: 'type', header: true },
-        { data: 'valid', header: true }
+        { data: 'valid', header: true },
+        { data: 'expected', header: true },
+        { data: 'found', header: true }
       ],
-      ['input-a', 'string', '❌']
+      ['input-a', 'string', '❌', 'should be provided', '<empty>']
     ])
     expect(spyWrite).toHaveBeenCalled()
   })
@@ -58,9 +60,11 @@ describe('Summary', () => {
       [
         { data: 'input name', header: true },
         { data: 'type', header: true },
-        { data: 'valid', header: true }
+        { data: 'valid', header: true },
+        { data: 'expected', header: true },
+        { data: 'found', header: true }
       ],
-      ['input-a', 'string', '✅']
+      ['input-a', 'string', '✅', expect.any(String), expect.any(String)]
     ])
     expect(spyWrite).toHaveBeenCalled()
   })

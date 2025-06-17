@@ -13,7 +13,7 @@ export class NumberVerifierImpl extends AbstractVerifier {
   ): boolean {
     if (!isNumber(value)) {
       validationReport.push({
-        message: `has to be a number`,
+        expected: `has to be a number`,
         found: this.convertValueToString(value)
       })
       return false

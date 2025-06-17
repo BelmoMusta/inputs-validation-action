@@ -34,7 +34,7 @@ describe('required validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['enabled']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe('required but not provided')
+      expect(reportElement[0].expected).toBe('required but not provided')
       expect(reportElement[0].found).toBeUndefined()
     })
   })

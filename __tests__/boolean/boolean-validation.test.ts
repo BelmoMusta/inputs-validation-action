@@ -32,7 +32,7 @@ describe('boolean validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['enabled']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe(
+      expect(reportElement[0].expected).toBe(
         "has to be a boolean with value 'true'"
       )
       expect(reportElement[0].found).toBe("'false'")
@@ -43,7 +43,7 @@ describe('boolean validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['enabled']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe('has to be a boolean')
+      expect(reportElement[0].expected).toBe('has to be a boolean')
       expect(reportElement[0].found).toBe("'not-a-boolean'")
     })
 
@@ -52,7 +52,7 @@ describe('boolean validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['enabled']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe('has to be a boolean')
+      expect(reportElement[0].expected).toBe('has to be a boolean')
       expect(reportElement[0].found).toBe('<empty>')
     })
   })

@@ -11,7 +11,7 @@ export class StringRegexVerifierImpl extends StringAbstractVerifier {
       const regExp = new RegExp(validationType.regex)
       if (!value || !regExp.test(value)) {
         validationReport.push({
-          message: `has to match the regex '${validationType.regex}'`,
+          expected: `has to match the regex '${validationType.regex}'`,
           found: value
         })
       }
