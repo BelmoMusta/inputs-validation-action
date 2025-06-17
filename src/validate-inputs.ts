@@ -17,7 +17,7 @@ function renderItems(
   const details: string[] = []
   for (const validationReportItem of validationReportItems) {
     details.push(
-      `  + ${validationReportItem.message}, but found ${validationReportItem.found}`
+      `  + ${validationReportItem.expected}, but found ${validationReportItem.found}`
     )
   }
   return `${header}${details.join('\n')}`

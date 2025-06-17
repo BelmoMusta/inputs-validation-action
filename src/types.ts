@@ -31,7 +31,7 @@ export type ValidationType =
   | BooleanValidationType
 
 export type ValidationReportItem = {
-  message: string
+  expected: string
   found?: string
 }
 export type InputValidationReport = {

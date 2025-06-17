@@ -17,7 +17,7 @@ export class BooleanVerifierImpl extends AbstractVerifier {
     }
     if (!isValid) {
       validationReport.push({
-        message: message,
+        expected: message,
         found: this.convertValueToString(value)
       })
     }

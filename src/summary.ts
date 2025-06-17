@@ -12,8 +12,24 @@ export async function computeSummary(
   Object.keys(validationScript).forEach((input) => {
     const validationScriptElement = validationScript[input]
     const type = `${validationScriptElement.type}`
-    const isValid = validationReport[input].length === 0 ? '✅' : '❌'
-    const row = [input, type, isValid]
+    const isValid = validationReport[input].length === 0
+    const icon = isValid ? '✅' : '❌'
+    let expected = ''
+    let found = ''
+    if (!isValid) {
+      expected = validationReport[input]
+        .map((item) => {
+          return item.expected
+        })
+        .join('\n')
+
+      found = validationReport[input]
+        .map((item) => {
+          return item.found
+        })
+        .join('\n')
+    }
+    const row = [input, type, icon, expected, found]
     summaryRows.push(row)
   })
 
@@ -24,7 +40,9 @@ export async function computeSummary(
         /* headers */
         { data: 'input name', header: true },
         { data: 'type', header: true },
-        { data: 'valid', header: true }
+        { data: 'valid', header: true },
+        { data: 'expected', header: true },
+        { data: 'found', header: true }
         /*rows*/
       ],
       ...summaryRows

@@ -25635,6 +25635,21 @@ module.exports = {
 
 /***/ }),
 
+/***/ 7242:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.INPUT_VALIDATION_SCRIPT_FILE = exports.INPUT_VALIDATION_SCRIPT = exports.INPUT_CONTINUE_ON_FAILURE = exports.OUTPUT_VALIDATION_RESULT = void 0;
+exports.OUTPUT_VALIDATION_RESULT = 'validation-result';
+exports.INPUT_CONTINUE_ON_FAILURE = 'continue-on-failure';
+exports.INPUT_VALIDATION_SCRIPT = 'validation-script';
+exports.INPUT_VALIDATION_SCRIPT_FILE = 'validation-script-file';
+
+
+/***/ }),
+
 /***/ 3647:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -25679,14 +25694,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getValidationScript = getValidationScript;
 const core = __importStar(__nccwpck_require__(7484));
-const node_fs_1 = __importDefault(__nccwpck_require__(3024));
+const fs_1 = __importDefault(__nccwpck_require__(9896));
 const YAML = __importStar(__nccwpck_require__(8815));
+const constants_1 = __nccwpck_require__(7242);
 function getValidationScript() {
-    const validationInlineScript = core.getInput('validation-script');
+    const validationInlineScript = core.getInput(constants_1.INPUT_VALIDATION_SCRIPT);
     if (!validationInlineScript) {
-        const validationScriptFileLocation = core.getInput('validation-script-file');
-        if (node_fs_1.default.existsSync(validationScriptFileLocation)) {
-            const fileBuffer = node_fs_1.default.readFileSync(validationScriptFileLocation, 'utf8');
+        const validationScriptFileLocation = core.getInput(constants_1.INPUT_VALIDATION_SCRIPT_FILE);
+        if (fs_1.default.existsSync(validationScriptFileLocation)) {
+            const fileBuffer = fs_1.default.readFileSync(validationScriptFileLocation, 'utf8');
             return YAML.parse(fileBuffer.toString());
         }
         else {
@@ -25742,16 +25758,17 @@ const validate_inputs_1 = __nccwpck_require__(6479);
 const core = __importStar(__nccwpck_require__(7484));
 const core_1 = __nccwpck_require__(7484);
 const summary_1 = __nccwpck_require__(8855);
+const constants_1 = __nccwpck_require__(7242);
 const validationReport = (0, validate_inputs_1.validateInputs)();
 const validationResult = (0, validate_inputs_1.getValidationResult)(validationReport);
 core.info(`MESSAGE = \n${validationResult.message}`);
-(0, core_1.setOutput)('validation-result', validationResult.message);
+(0, core_1.setOutput)(constants_1.OUTPUT_VALIDATION_RESULT, JSON.stringify(validationResult));
 (0, summary_1.computeSummary)(validationReport)
     .then(() => {
     // do nothing
 })
     .catch((error) => core.setFailed(error));
-const continueOnFailure = core.getBooleanInput('continue-on-failure');
+const continueOnFailure = core.getBooleanInput(constants_1.INPUT_CONTINUE_ON_FAILURE);
 if (!continueOnFailure && !validationResult.isValid) {
     core.setFailed(validationResult.message || '');
 }
@@ -25807,8 +25824,23 @@ async function computeSummary(validationReport) {
     Object.keys(validationScript).forEach((input) => {
         const validationScriptElement = validationScript[input];
         const type = `${validationScriptElement.type}`;
-        const isValid = validationReport[input].length === 0 ? '✅' : '❌';
-        const row = [input, type, isValid];
+        const isValid = validationReport[input].length === 0;
+        const icon = isValid ? '✅' : '❌';
+        let expected = '';
+        let found = '';
+        if (!isValid) {
+            expected = validationReport[input]
+                .map((item) => {
+                return item.expected;
+            })
+                .join('\n');
+            found = validationReport[input]
+                .map((item) => {
+                return item.found;
+            })
+                .join('\n');
+        }
+        const row = [input, type, icon, expected, found];
         summaryRows.push(row);
     });
     await core.summary
@@ -25818,7 +25850,9 @@ async function computeSummary(validationReport) {
             /* headers */
             { data: 'input name', header: true },
             { data: 'type', header: true },
-            { data: 'valid', header: true }
+            { data: 'valid', header: true },
+            { data: 'expected', header: true },
+            { data: 'found', header: true }
             /*rows*/
         ],
         ...summaryRows
@@ -25878,7 +25912,7 @@ function renderItems(inputName, validationReportItems) {
     const header = `- Input : '${inputName}'\n`;
     const details = [];
     for (const validationReportItem of validationReportItems) {
-        details.push(`  + ${validationReportItem.message}, but found ${validationReportItem.found}`);
+        details.push(`  + ${validationReportItem.expected}, but found ${validationReportItem.found}`);
     }
     return `${header}${details.join('\n')}`;
 }
@@ -26114,7 +26148,7 @@ class BooleanVerifierImpl extends abstract_verifier_1.AbstractVerifier {
         }
         if (!isValid) {
             validationReport.push({
-                message: message,
+                expected: message,
                 found: this.convertValueToString(value)
             });
         }
@@ -26140,7 +26174,7 @@ class NumberEqualsVerifierImpl extends abstract_verifier_1.AbstractVerifier {
         const numberValue = Number(value);
         if (equals !== undefined && numberValue !== equals) {
             validationReport.push({
-                message: `has to be a number equal to '${equals}'`,
+                expected: `has to be a number equal to '${equals}'`,
                 found: value
             });
             return false;
@@ -26166,7 +26200,7 @@ class NumberGreaterThanVerifierImpl extends abstract_verifier_1.AbstractVerifier
         const lessThan = validationType['greater-than'];
         if (lessThan !== undefined && Number(value) < lessThan) {
             validationReport.push({
-                message: `has to be a number greater than '${lessThan}'`,
+                expected: `has to be a number greater than '${lessThan}'`,
                 found: value
             });
             return false;
@@ -26192,7 +26226,7 @@ class NumberLessThanVerifierImpl extends abstract_verifier_1.AbstractVerifier {
         const lessThan = validationType['less-than'];
         if (lessThan !== undefined && Number(value) > lessThan) {
             validationReport.push({
-                message: `has to be a number less than '${lessThan}'`,
+                expected: `has to be a number less than '${lessThan}'`,
                 found: value
             });
             return false;
@@ -26220,7 +26254,7 @@ class NumberVerifierImpl extends abstract_verifier_1.AbstractVerifier {
     verify(validationType, value, validationReport) {
         if (!isNumber(value)) {
             validationReport.push({
-                message: `has to be a number`,
+                expected: `has to be a number`,
                 found: this.convertValueToString(value)
             });
             return false;
@@ -26245,7 +26279,7 @@ class RequiredVerifierImpl extends abstract_verifier_1.AbstractVerifier {
     verify(validationType, value, validationReport) {
         if (validationType.required && value === undefined) {
             validationReport.push({
-                message: `required but not provided`,
+                expected: `required but not provided`,
                 found: undefined
             });
             return false;
@@ -26298,7 +26332,7 @@ class StringEqualsVerifierImpl extends string_abstract_verifier_1.StringAbstract
         if (validationType.equals) {
             if (value !== validationType.equals) {
                 validationReport.push({
-                    message: `has to be equal to '${validationType.equals}'`,
+                    expected: `has to be equal to '${validationType.equals}'`,
                     found: this.convertValueToString(value)
                 });
                 return false;
@@ -26329,7 +26363,7 @@ class StringLengthVerifierImpl extends string_abstract_verifier_1.StringAbstract
             const length = this.lengthOfANonBlankString(value);
             if (length !== validationType.length) {
                 validationReport.push({
-                    message: `has to have length '${validationType.length}'`,
+                    expected: `has to have length '${validationType.length}'`,
                     found: `${length}`
                 });
                 return false;
@@ -26357,7 +26391,8 @@ class StringNotBlankVerifierImpl extends string_abstract_verifier_1.StringAbstra
             const length = this.lengthOfANonBlankString(value);
             if (length === 0) {
                 validationReport.push({
-                    message: `has to be a non blank string`
+                    found: '<empty>',
+                    expected: `has to be a non blank string`
                 });
                 return false;
             }
@@ -26384,7 +26419,7 @@ class StringRegexVerifierImpl extends string_abstract_verifier_1.StringAbstractV
             const regExp = new RegExp(validationType.regex);
             if (!value || !regExp.test(value)) {
                 validationReport.push({
-                    message: `has to match the regex '${validationType.regex}'`,
+                    expected: `has to match the regex '${validationType.regex}'`,
                     found: value
                 });
             }
@@ -26507,14 +26542,6 @@ module.exports = require("net");
 
 "use strict";
 module.exports = require("node:events");
-
-/***/ }),
-
-/***/ 3024:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("node:fs");
 
 /***/ }),
 

@@ -9,7 +9,7 @@ export class RequiredVerifierImpl extends AbstractVerifier {
   ): boolean {
     if (validationType.required && value === undefined) {
       validationReport.push({
-        message: `required but not provided`,
+        expected: `required but not provided`,
         found: undefined
       })
       return false

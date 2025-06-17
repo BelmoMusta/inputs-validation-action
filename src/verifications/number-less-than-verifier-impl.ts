@@ -10,7 +10,7 @@ export class NumberLessThanVerifierImpl extends AbstractVerifier {
     const lessThan = validationType['less-than']
     if (lessThan !== undefined && Number(value) > lessThan) {
       validationReport.push({
-        message: `has to be a number less than '${lessThan}'`,
+        expected: `has to be a number less than '${lessThan}'`,
         found: value
       })
       return false

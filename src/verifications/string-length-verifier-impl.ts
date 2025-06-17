@@ -11,7 +11,7 @@ export class StringLengthVerifierImpl extends StringAbstractVerifier {
       const length = this.lengthOfANonBlankString(value)
       if (length !== validationType.length) {
         validationReport.push({
-          message: `has to have length '${validationType.length}'`,
+          expected: `has to have length '${validationType.length}'`,
           found: `${length}`
         })
         return false

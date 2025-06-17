@@ -32,8 +32,8 @@ describe('string validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['key']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe('has to be a non blank string')
-      expect(reportElement[0].found).toBeUndefined()
+      expect(reportElement[0].expected).toBe('has to be a non blank string')
+      expect(reportElement[0].found).toBe('<empty>')
     })
 
     it('should validate a not-blank string when input value is not provided', async () => {
@@ -41,8 +41,8 @@ describe('string validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['key']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe('has to be a non blank string')
-      expect(reportElement[0].found).toBeUndefined()
+      expect(reportElement[0].expected).toBe('has to be a non blank string')
+      expect(reportElement[0].found).toBe('<empty>')
     })
 
     it('should validate a not-blank string -- best case', async () => {
@@ -63,7 +63,7 @@ describe('string validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['working-directory']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe(`has to have length '10'`)
+      expect(reportElement[0].expected).toBe(`has to have length '10'`)
       expect(reportElement[0].found).toBe(`${'/path'.length}`)
     })
     it('should validate length for a string -- best case', async () => {
@@ -82,7 +82,7 @@ describe('string validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['input-b']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe(
+      expect(reportElement[0].expected).toBe(
         `has to match the regex '^foo\\.bar.*$'`
       )
       expect(reportElement[0].found).toBe('not-foo.bar')
@@ -93,7 +93,7 @@ describe('string validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['input-b']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe(
+      expect(reportElement[0].expected).toBe(
         `has to match the regex '^foo\\.bar.*$'`
       )
       expect(reportElement[0].found).toBeUndefined()
@@ -115,7 +115,7 @@ describe('string validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['input-b']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe(`has to be equal to 'this value'`)
+      expect(reportElement[0].expected).toBe(`has to be equal to 'this value'`)
       expect(reportElement[0].found).toBe("'another value'")
     })
 
@@ -124,7 +124,7 @@ describe('string validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['input-b']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe(`has to be equal to 'this value'`)
+      expect(reportElement[0].expected).toBe(`has to be equal to 'this value'`)
       expect(reportElement[0].found).toBe('<empty>')
     })
 

@@ -10,7 +10,7 @@ export class StringEqualsVerifierImpl extends StringAbstractVerifier {
     if (validationType.equals) {
       if (value !== validationType.equals) {
         validationReport.push({
-          message: `has to be equal to '${validationType.equals}'`,
+          expected: `has to be equal to '${validationType.equals}'`,
           found: this.convertValueToString(value)
         })
         return false

@@ -11,7 +11,8 @@ export class StringNotBlankVerifierImpl extends StringAbstractVerifier {
       const length = this.lengthOfANonBlankString(value)
       if (length === 0) {
         validationReport.push({
-          message: `has to be a non blank string`
+          found: '<empty>',
+          expected: `has to be a non blank string`
         })
         return false
       }

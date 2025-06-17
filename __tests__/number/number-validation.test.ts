@@ -32,7 +32,7 @@ describe('number validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['time-to-live']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe(
+      expect(reportElement[0].expected).toBe(
         "has to be a number equal to '1000'"
       )
       expect(reportElement[0].found).toBe('999')
@@ -43,7 +43,7 @@ describe('number validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['time-to-live']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe('has to be a number')
+      expect(reportElement[0].expected).toBe('has to be a number')
       expect(reportElement[0].found).toBe('<empty>')
     })
 
@@ -60,7 +60,7 @@ describe('number validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['time-to-live']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe(
+      expect(reportElement[0].expected).toBe(
         "has to be a number less than '1000'"
       )
       expect(reportElement[0].found).toBe('1001')
@@ -73,7 +73,7 @@ describe('number validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['time-to-live']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe('has to be a number')
+      expect(reportElement[0].expected).toBe('has to be a number')
       expect(reportElement[0].found).toBe('<empty>')
     })
 
@@ -90,7 +90,7 @@ describe('number validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['time-to-live']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe(
+      expect(reportElement[0].expected).toBe(
         "has to be a number greater than '10'"
       )
       expect(reportElement[0].found).toBe('9')
@@ -103,7 +103,7 @@ describe('number validation', () => {
       const validationResult = validateInputs()
       const reportElement = validationResult['time-to-live']
       expect(reportElement.length).toEqual(1)
-      expect(reportElement[0].message).toBe('has to be a number')
+      expect(reportElement[0].expected).toBe('has to be a number')
       expect(reportElement[0].found).toBe('<empty>')
     })
 
